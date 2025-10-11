@@ -26,9 +26,9 @@ This document tracks key decisions and conventions so contributors (including AI
 ## ADR-0004: Edge-Blocking Representation
 
 - Status: Decided
-- Context: Efficient legality checks and pathfinding.
-- Decision: Maintain a Set of blocked edges normalized as "r1,c1|r2,c2" with lexicographic ordering.
-- Consequences: O(1) edge checks; easy to derive graph during pathfinding.
+- Context: Efficient legality checks and pathfinding while keeping state simple and JSON-friendly.
+- Decision: Represent blocked edges as a string array in `GameState`, each normalized as "r1,c1|r2,c2" with lexicographic ordering. Do not use Set in core state.
+- Consequences: Simple serialization and snapshots. Linear membership checks are acceptable for 9x9 Quoridor (<= 40 segments typical). If performance tuning is needed later, it will be addressed without changing the public state shape.
 
 ## ADR-0005: Ports and Adapters
 
