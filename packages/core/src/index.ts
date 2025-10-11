@@ -44,13 +44,21 @@ export function serialize(state: GameState): string {
 
 export function deserialize(json: string): Result<GameState> {
   try {
-    const parsed = JSON.parse(json) as GameState;
+    const parsed = JSON.parse(json) as Partial<GameState>;
     // Minimal shape check
-    if (parsed && parsed.boardSize === 9 && parsed.pawns && parsed.wallsRemaining) {
-      return { ok: true, value: parsed };
+    if (
+      parsed &&
+      parsed.boardSize === 9 &&
+      parsed.pawns &&
+      parsed.wallsRemaining &&
+      parsed.blockedEdges &&
+      parsed.history &&
+      parsed.turn
+    ) {
+      return { ok: true, value: parsed as GameState };
     }
-  } catch (e) {
-    throw new Error('Failed to parse JSON: ' + (e instanceof Error ? e.message : String(e)));
+  } catch {
+    // swallow and return invalid
   }
   return { ok: false, code: 'deserialize_invalid', reason: 'Invalid or incompatible state JSON' };
 }
