@@ -140,47 +140,55 @@ export function deserialize(json: string): Result<GameState> {
 }
 
 function isGameState(x: unknown): x is GameState {
-  if (!x || typeof x !== 'object') return false;
-  const obj = x as Record<string, unknown>;
-  if (obj.boardSize !== 9) return false;
-  if (obj.turn !== 'P1' && obj.turn !== 'P2') return false;
-  const pawns = obj.pawns as unknown;
-  if (!pawns || typeof pawns !== 'object') return false;
-  const p1 = (pawns as any).P1;
-  const p2 = (pawns as any).P2;
-  const isCoord = (v: any) => v && typeof v.r === 'number' && typeof v.c === 'number';
-  if (!isCoord(p1) || !isCoord(p2)) return false;
-  const wallsRem = obj.wallsRemaining as any;
-  if (!wallsRem || typeof wallsRem.P1 !== 'number' || typeof wallsRem.P2 !== 'number') return false;
+  const isObj = (v: unknown): v is Record<string, unknown> => v !== null && typeof v === 'object';
+  const isCoord = (v: unknown): v is { r: number; c: number } =>
+    isObj(v) && typeof v['r'] === 'number' && typeof v['c'] === 'number';
+  const isValidWall = (w: unknown): boolean =>
+    isObj(w) &&
+    typeof w['r'] === 'number' &&
+    typeof w['c'] === 'number' &&
+    w['r'] >= 0 &&
+    w['r'] <= 7 &&
+    w['c'] >= 0 &&
+    w['c'] <= 7 &&
+    (w['o'] === 'H' || w['o'] === 'V');
+
+  if (!isObj(x)) return false;
+  const obj = x;
+  if (obj['boardSize'] !== 9) return false;
+  if (obj['turn'] !== 'P1' && obj['turn'] !== 'P2') return false;
+
+  const pawns = obj['pawns'];
+  if (!isObj(pawns)) return false;
+  if (!isCoord(pawns['P1']) || !isCoord(pawns['P2'])) return false;
+
+  const wallsRem = obj['wallsRemaining'];
+  if (!isObj(wallsRem)) return false;
+  if (typeof wallsRem['P1'] !== 'number' || typeof wallsRem['P2'] !== 'number') return false;
+
   if (
-    !Array.isArray(obj.placedWalls) ||
-    !Array.isArray(obj.blockedEdges) ||
-    !Array.isArray(obj.history)
+    !Array.isArray(obj['placedWalls']) ||
+    !Array.isArray(obj['blockedEdges']) ||
+    !Array.isArray(obj['history'])
   )
     return false;
 
-  // placedWalls items: { r: 0..7, c: 0..7, o: 'H'|'V' }
-  const validWall = (w: any) =>
-    w &&
-    typeof w.r === 'number' &&
-    typeof w.c === 'number' &&
-    w.r >= 0 &&
-    w.r <= 7 &&
-    w.c >= 0 &&
-    w.c <= 7 &&
-    (w.o === 'H' || w.o === 'V');
-  if (!(obj.placedWalls as any[]).every(validWall)) return false;
+  if (!obj['placedWalls'].every(isValidWall)) return false;
 
-  // blockedEdges strings format: "r1,c1|r2,c2"
   const edgeRe = /^\d+,\d+\|\d+,\d+$/;
-  if (!(obj.blockedEdges as any[]).every((s) => typeof s === 'string' && edgeRe.test(s)))
-    return false;
+  if (!obj['blockedEdges'].every((s) => typeof s === 'string' && edgeRe.test(s))) return false;
 
-  // history union members: PawnMove | WallPlacement
-  const isPawnMove = (m: any) => m && m.type === 'PawnMove' && isCoord(m.to);
-  const isWallPlacement = (m: any) =>
-    m && m.type === 'WallPlacement' && validWall({ r: m.anchor?.r, c: m.anchor?.c, o: m.o });
-  if (!(obj.history as any[]).every((m) => isPawnMove(m) || isWallPlacement(m))) return false;
+  const isHistPawnMove = (m: unknown): boolean =>
+    isObj(m) && m['type'] === 'PawnMove' && isCoord(m['to']);
+  const isHistWallPlacement = (m: unknown): boolean =>
+    isObj(m) &&
+    m['type'] === 'WallPlacement' &&
+    isValidWall({
+      r: isObj(m['anchor']) ? m['anchor']['r'] : undefined,
+      c: isObj(m['anchor']) ? m['anchor']['c'] : undefined,
+      o: m['o'],
+    });
+  if (!obj['history'].every((m) => isHistPawnMove(m) || isHistWallPlacement(m))) return false;
 
   return true;
 }

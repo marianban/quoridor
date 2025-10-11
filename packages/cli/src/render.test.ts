@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { Game, legalMoves } from '@quoridor/core';
+import { Game, legalMoves, type Move } from '@quoridor/core';
 import { renderBoardState } from './render.js';
 
 describe('renderBoardState', () => {
@@ -22,9 +22,12 @@ describe('renderBoardState', () => {
     // Pick a guaranteed-legal wall from legalMoves and verify ASCII by inspecting blockedEdges
     let g = Game.initial();
     const moves = legalMoves(g.state);
-    const wall = moves.find((m: any) => m.type === 'WallPlacement');
+    const wall = moves.find(
+      (m: Move): m is Extract<Move, { type: 'WallPlacement' }> => m.type === 'WallPlacement',
+    );
     expect(wall).toBeDefined();
-    const res = g.applyMove(wall as any);
+    if (!wall) throw new Error('No wall move found');
+    const res = g.applyMove(wall);
     expect(res.ok).toBe(true);
     if (res.ok) g = res.value;
 
