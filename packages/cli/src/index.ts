@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import readline from 'readline';
-import { Game, legalMoves } from '@quoridor/core';
+import { Game } from '@quoridor/core';
+import { renderBoard } from './render.js';
 
 type Cmd = { kind: 'move'; to: string } | { kind: 'wall'; anchor: string; o: 'H' | 'V' } | { kind: 'help' } | { kind: 'quit' };
 
@@ -25,63 +26,7 @@ function fmtStateBanner(g: Game): string {
   return `Turn: ${g.turn} | P1 @ (${P1.r},${P1.c}) w=${w1} | P2 @ (${P2.r},${P2.c}) w=${w2}`;
 }
 
-function renderBoard(g: Game): string {
-  // Build blocked edge maps from state.blockedEdges
-  const hBlock: boolean[][] = Array.from({ length: 9 }, () => Array(8).fill(false)); // between (r,c)-(r,c+1)
-  const vBlock: boolean[][] = Array.from({ length: 8 }, () => Array(9).fill(false)); // between (r,c)-(r+1,c)
-  for (const e of g.state.blockedEdges) {
-    const [a, b] = e.split('|');
-    const [r1s, c1s] = a.split(',');
-    const [r2s, c2s] = b.split(',');
-    const r1 = Number(r1s), c1 = Number(c1s), r2 = Number(r2s), c2 = Number(c2s);
-    if (r1 === r2) {
-      // horizontal adjacency edge
-      const r = r1; const c = Math.min(c1, c2);
-      if (r >= 0 && r <= 8 && c >= 0 && c <= 7) hBlock[r][c] = true;
-    } else if (c1 === c2) {
-      // vertical adjacency edge
-      const c = c1; const r = Math.min(r1, r2);
-      if (r >= 0 && r <= 7 && c >= 0 && c <= 8) vBlock[r][c] = true;
-    }
-  }
-
-  // Compute highlight set for legal pawn destinations
-  const highlight = new Set<string>();
-  for (const m of legalMoves(g.state)) {
-    if ((m as any).type === 'PawnMove') {
-      const to = (m as any).to;
-      highlight.add(`${to.r},${to.c}`);
-    }
-  }
-
-  const key = (r: number, c: number) => `${r},${c}`;
-  const cellChar = (r: number, c: number): string => {
-    if (g.state.pawns.P1.r === r && g.state.pawns.P1.c === c) return '1';
-    if (g.state.pawns.P2.r === r && g.state.pawns.P2.c === c) return '2';
-    return highlight.has(key(r, c)) ? '*' : '.';
-  };
-
-  const lines: string[] = [];
-  for (let r = 0; r < 9; r++) {
-    // Cell line with horizontal wall indicators between cells
-    let cellLine = '';
-    for (let c = 0; c < 9; c++) {
-      cellLine += cellChar(r, c);
-      if (c < 8) cellLine += hBlock[r][c] ? '|' : ' ';
-    }
-    lines.push(cellLine);
-    // Wall line between rows
-    if (r < 8) {
-      let wallLine = '';
-      for (let c = 0; c < 9; c++) {
-        wallLine += vBlock[r][c] ? '-' : ' ';
-        if (c < 8) wallLine += ' ';
-      }
-      lines.push(wallLine);
-    }
-  }
-  return lines.join('\n');
-}
+// rendering moved to ./render.ts and imported as renderBoard
 
 function parseCoord(s: string): { r: number; c: number } | null {
   const m = s.match(/^(\d+),(\d+)$/);
