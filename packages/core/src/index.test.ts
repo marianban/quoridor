@@ -12,7 +12,15 @@ describe('core skeleton', () => {
     expect(Array.isArray(s.blockedEdges)).toBe(true);
     expect(Array.isArray(s.history)).toBe(true);
     expect(isTerminal(s)).toBe(false);
-    expect(legalMoves(s)).toEqual([]);
+    const moves = legalMoves(s);
+    // Should have 3 pawn moves (down, left, right) + 128 wall placements = 131
+    expect(moves.length).toBe(131);
+    // Pawn moves come first and are sorted by row, then col
+    expect(moves[0]).toEqual({ type: 'PawnMove', to: { r: 0, c: 3 } });
+    expect(moves[1]).toEqual({ type: 'PawnMove', to: { r: 0, c: 5 } });
+    expect(moves[2]).toEqual({ type: 'PawnMove', to: { r: 1, c: 4 } });
+    // First wall is horizontal at (0,0)
+    expect(moves[3]).toEqual({ type: 'WallPlacement', anchor: { r: 0, c: 0 }, o: 'H' });
   });
 
   it('serializes and deserializes', () => {
