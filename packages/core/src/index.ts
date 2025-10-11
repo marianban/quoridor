@@ -1,4 +1,4 @@
-import type { Coord, CreateOptions, GameState, Move, Player, Result } from './types';
+import type { CreateOptions, GameState, Move, Player, Result } from './types';
 
 export { type Coord, type GameState, type Move, type Player, type Result } from './types';
 
@@ -50,7 +50,7 @@ export function deserialize(json: string): Result<GameState> {
       return { ok: true, value: parsed };
     }
   } catch (e) {
-    // fallthrough
+    throw new Error('Failed to parse JSON: ' + (e instanceof Error ? e.message : String(e)));
   }
   return { ok: false, code: 'deserialize_invalid', reason: 'Invalid or incompatible state JSON' };
 }
