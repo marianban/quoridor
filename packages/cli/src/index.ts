@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import readline from 'readline';
-import { Game } from '@quoridor/core';
+import { Game, legalMoves } from '@quoridor/core';
 
 type Cmd = { kind: 'move'; to: string } | { kind: 'wall'; anchor: string; o: 'H' | 'V' } | { kind: 'help' } | { kind: 'quit' };
 
@@ -26,16 +26,61 @@ function fmtStateBanner(g: Game): string {
 }
 
 function renderBoard(g: Game): string {
-  const rows: string[] = [];
-  for (let r = 0; r < 9; r++) {
-    let line = '';
-    for (let c = 0; c < 9; c++) {
-      const here = (g.state.pawns.P1.r === r && g.state.pawns.P1.c === c) ? '1' : (g.state.pawns.P2.r === r && g.state.pawns.P2.c === c) ? '2' : '.';
-      line += here + ' ';
+  // Build blocked edge maps from state.blockedEdges
+  const hBlock: boolean[][] = Array.from({ length: 9 }, () => Array(8).fill(false)); // between (r,c)-(r,c+1)
+  const vBlock: boolean[][] = Array.from({ length: 8 }, () => Array(9).fill(false)); // between (r,c)-(r+1,c)
+  for (const e of g.state.blockedEdges) {
+    const [a, b] = e.split('|');
+    const [r1s, c1s] = a.split(',');
+    const [r2s, c2s] = b.split(',');
+    const r1 = Number(r1s), c1 = Number(c1s), r2 = Number(r2s), c2 = Number(c2s);
+    if (r1 === r2) {
+      // horizontal adjacency edge
+      const r = r1; const c = Math.min(c1, c2);
+      if (r >= 0 && r <= 8 && c >= 0 && c <= 7) hBlock[r][c] = true;
+    } else if (c1 === c2) {
+      // vertical adjacency edge
+      const c = c1; const r = Math.min(r1, r2);
+      if (r >= 0 && r <= 7 && c >= 0 && c <= 8) vBlock[r][c] = true;
     }
-    rows.push(line.trimEnd());
   }
-  return rows.join('\n');
+
+  // Compute highlight set for legal pawn destinations
+  const highlight = new Set<string>();
+  for (const m of legalMoves(g.state)) {
+    if ((m as any).type === 'PawnMove') {
+      const to = (m as any).to;
+      highlight.add(`${to.r},${to.c}`);
+    }
+  }
+
+  const key = (r: number, c: number) => `${r},${c}`;
+  const cellChar = (r: number, c: number): string => {
+    if (g.state.pawns.P1.r === r && g.state.pawns.P1.c === c) return '1';
+    if (g.state.pawns.P2.r === r && g.state.pawns.P2.c === c) return '2';
+    return highlight.has(key(r, c)) ? '*' : '.';
+  };
+
+  const lines: string[] = [];
+  for (let r = 0; r < 9; r++) {
+    // Cell line with horizontal wall indicators between cells
+    let cellLine = '';
+    for (let c = 0; c < 9; c++) {
+      cellLine += cellChar(r, c);
+      if (c < 8) cellLine += hBlock[r][c] ? '|' : ' ';
+    }
+    lines.push(cellLine);
+    // Wall line between rows
+    if (r < 8) {
+      let wallLine = '';
+      for (let c = 0; c < 9; c++) {
+        wallLine += vBlock[r][c] ? '-' : ' ';
+        if (c < 8) wallLine += ' ';
+      }
+      lines.push(wallLine);
+    }
+  }
+  return lines.join('\n');
 }
 
 function parseCoord(s: string): { r: number; c: number } | null {
@@ -91,7 +136,7 @@ async function main() {
         console.log(`Error: ${res.code} - ${res.reason}`);
       } else {
         g = res.value;
-        console.log(renderBoard(g));
+  console.log(renderBoard(g));
         console.log(fmtStateBanner(g));
       }
       continue;
@@ -107,7 +152,7 @@ async function main() {
         console.log(`Error: ${res.code} - ${res.reason}`);
       } else {
         g = res.value;
-        console.log(renderBoard(g));
+  console.log(renderBoard(g));
         console.log(fmtStateBanner(g));
       }
     }
