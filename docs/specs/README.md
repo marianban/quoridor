@@ -52,7 +52,7 @@ Type sketches:
 - isTerminal(state) → boolean; getWinner(state) → Player | null
 - serialize(state) → string; deserialize(json) → Result&lt;GameState&gt;
   - deserialize validates shape and invariants; error codes under Error Codes.
-  
+
 Note: Shortest-path utilities are not required for PvP legality and may live in agents/utilities later.
 
 ## 5. Core Contracts
@@ -163,4 +163,3 @@ Notes:
   - history?: optional array of prior moves/states (not required for MVP)
 - serialize(state): returns stable JSON (sorted arrays where applicable)
 - deserialize(json): validates schema and invariants; returns Result&lt;GameState&gt; or { ok:false, code: 'deserialize_invalid', reason }
-
