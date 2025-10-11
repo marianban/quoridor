@@ -7,11 +7,9 @@ This folder will contain architecture and design details for the implementation.
 - @quoridor/core
 - @quoridor/agents
 - @quoridor/ui-cli
-- @quoridor/ui-web (and optionally @quoridor/ui-react)
+- @quoridor/ui-web (optional later)
 
-Notes:
-
-- Phase 1 presentation: CLI adapter.
+Note: Phase 1 presentation is the CLI adapter.
 
 ## 2. Core Engine Design
 
@@ -46,4 +44,4 @@ Notes:
 
 ## 6. Decisions
 
-- CLI first (Phase 1), Node LTS + evergreen browsers, standard 9x9/10 walls, MIT license, npm workspaces, no CI initially.
+See ADRs: 0001, 0002, 0005, 0006, 0009–0012.

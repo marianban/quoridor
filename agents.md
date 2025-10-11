@@ -54,13 +54,16 @@ This document tracks key decisions and conventions so contributors (including AI
 ## ADR-0008: Error Reporting
 
 - Status: Decided
+- Context: Developer and user feedback for illegal moves.
+- Decision: All validation functions return discriminated unions { ok: true; value } | { ok: false; code; reason } with stable error codes.
+- Consequences: Clear error handling across adapters and tests.
 
 ## ADR-0009: Phase 1 UI Target
 
 - Status: Decided
 - Context: We need a fast path to a playable PvP MVP.
 - Decision: Phase 1 UI is CLI; web UI can follow later.
-- Consequences: Faster iteration and easier automation of E2E tests.
+- Consequences: Faster iteration and easier local testing.
 
 ## ADR-0010: Tooling and Test Stack
 
@@ -82,6 +85,3 @@ This document tracks key decisions and conventions so contributors (including AI
 - Context: Keep v1 simple and standard.
 - Decision: Standard 9x9 board, 10 walls per player, no timers, no special draw rules, undo/redo optional (not required for MVP).
 - Consequences: Reduces complexity; can extend later.
-- Context: Developer and user feedback for illegal moves.
-- Decision: All validation functions return discriminated unions { ok: true; value } | { ok: false; reason; code }.
-- Consequences: Clear error handling across adapters and tests.

@@ -16,12 +16,9 @@
 
 ## High-level Approach
 
-- Use a hex/clean architecture:
-  - Core engine: pure, framework-free TS module with domain types, rules, and search.
-  - Ports (interfaces) for I/O boundaries: renderer, input, storage, time, RNG.
-  - Adapters implement ports for specific UIs (CLI, Web, etc.).
-- Enforce immutability for core state to simplify testing and AI search.
-- Provide a stable, minimal public API for the core engine.
+- Core: pure, immutable TS engine (no runtime deps).
+- Ports/adapters: thin CLI now; web later.
+- Stable, minimal public API.
 
 ## Deliverables by Phase
 
@@ -32,7 +29,7 @@
   - Board model (9x9), coordinates, walls, pawn positions.
   - Rules: legal pawn moves incl. jumps/diagonals, legal wall placements, path-existence check.
   - Deterministic state transitions (applyMove) and serialization.
-  - Pathfinding: BFS/Dijkstra on a dynamic adjacency graph minus blocked edges.
+  - Pathfinding: BFS on a dynamic adjacency graph minus blocked edges.
   - Acceptance tests for standard scenarios and edge-cases.
 
 - M2 – Minimal UI Adapter (Local PvP)
@@ -53,12 +50,11 @@
 
 ## Architecture Overview
 
-- Packages (proposed):
+- Packages (MVP + next):
   - @quoridor/core: domain, rules, engine, search utilities.
   - @quoridor/agents: human adapter (prompt/input), AI agents, search.
   - @quoridor/ui-cli: terminal UI.
-  - @quoridor/ui-web: minimal vanilla TS/Canvas.
-  - @quoridor/ui-react: React adapter (later).
+  - @quoridor/ui-web: minimal vanilla TS/Canvas (optional later).
 
 - Core Concepts:
   - Board: size 9x9 grid of cells with edges removed by walls.
@@ -67,14 +63,7 @@
   - Move: PawnMove or WallPlacement.
   - GameState: whose turn, pawn positions, remaining walls per player, placed walls, history.
 
-- Public API (sketch):
-  - createInitialState(options?): GameState
-  - legalMoves(state): Move[]
-  - applyMove(state, move): GameState
-  - isTerminal(state): boolean
-  - getWinner(state): Player | null
-  - shortestPathLength(state, player): number
-  - serialize(state): string; deserialize(json): GameState
+- Public API contracts: see docs/specs/README.md.
 
 - Adapters and Controllers:
   - GameController abstracts "input -> intent -> validation -> state update -> render".
@@ -84,7 +73,7 @@
 
 - Board 9x9; two players start centered on opposite sides.
 - On a turn, a player either moves their pawn or places a wall.
-- Pawn moves: orthogonally to adjacent cell if not blocked; jump over adjacent opponent if possible; if blocked behind, diagonal moves in general not allowed, diagonal moves permitted around the opponent.
+- Pawn moves: orthogonally to adjacent cell if not blocked; jump over adjacent opponent if possible; if the jump is blocked, a diagonal step around the opponent is allowed; otherwise, no diagonals.
 - Walls: cannot overlap or cross existing walls; must remain within bounds; must not block all paths—each player must retain at least one path to the goal row.
 - Each player has 10 walls.
 - First to reach any cell on their goal row wins.
@@ -104,7 +93,7 @@
 - Property-based tests (fast-check) for invariants: path exists after legal placements, applyMove is pure, symmetry properties.
 - Scenario tests from published Quoridor examples.
 - Snapshot tests for legalMoves on canonical states.
-- E2E smoke tests for adapters (CLI; Web via Playwright later).
+
 
 
 ## Tooling (selected)
