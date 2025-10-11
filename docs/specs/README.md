@@ -60,6 +60,7 @@ Note: Shortest-path utilities are not required for PvP legality and may live in 
 - Purity/immutability: no mutation of inputs (ADR-0002).
 - Deterministic ordering for legalMoves (ADR-0006).
 - Result model: discriminated unions with stable error codes (ADR-0008).
+- Edge key encoding: strings using normalized "r1,c1|r2,c2"; no bitset (readability first).
 
 ### Error Codes (stable)
 
@@ -158,8 +159,8 @@ Notes:
   - pawns: { P1: Coordinate; P2: Coordinate }
   - wallsRemaining: { P1: number; P2: number } (start at 10)
   - placedWalls: Array&lt;Wall&gt; (anchors with orientation)
-  - blockedEdges: Array&lt;string&gt; of normalized edge keys "r1,c1|r2,c2" (lexicographic ordering per ADR)
+  - blockedEdges: Array&lt;string&gt; of normalized edge keys "r1,c1|r2,c2" (lexicographic ordering per ADR; strings chosen for readability; no bitset)
   - turn: Player
-  - history?: optional array of prior moves/states (not required for MVP)
+  - history: Array&lt;Move&gt; of prior moves (included for replay; immutable append-only)
 - serialize(state): returns stable JSON (sorted arrays where applicable)
 - deserialize(json): validates schema and invariants; returns Result&lt;GameState&gt; or { ok:false, code: 'deserialize_invalid', reason }

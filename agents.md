@@ -85,3 +85,12 @@ This document tracks key decisions and conventions so contributors (including AI
 - Context: Keep v1 simple and standard.
 - Decision: Standard 9x9 board, 10 walls per player, no timers, no special draw rules, undo/redo optional (not required for MVP).
 - Consequences: Reduces complexity; can extend later.
+
+## ADR-0013: State Encoding Choices
+
+- Status: Decided
+- Context: Simple, readable core data structures for portability and testing.
+- Decisions:
+  - Edge key encoding uses strings normalized as "r1,c1|r2,c2". No bitset representation will be used.
+  - GameState includes a history array of moves for replay; history is immutable append-only.
+- Consequences: Improves readability and debuggability; small overhead acceptable for 9x9 board size.

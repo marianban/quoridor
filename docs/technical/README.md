@@ -19,6 +19,11 @@ Note: Phase 1 presentation is the CLI adapter.
 - Pathfinding utilities and caching
 - Public API surface and versioning
 
+Notes:
+
+- Edge key encoding: strings in normalized form "r1,c1|r2,c2" (readable; no bitset).
+- Include a history array of moves in state for replay (append-only; optional undo built on history later).
+
 ## 3. Ports and Adapters
 
 - Renderer interface
