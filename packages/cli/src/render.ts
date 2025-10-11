@@ -1,12 +1,9 @@
 import { GameState, Move } from '@quoridor/core';
 import { legalMoves } from '@quoridor/core';
 
-function isPawnMove(m: Move): m is { type: 'PawnMove'; to: { r: number; c: number } } {
-  return (
-    (m as any).type === 'PawnMove' &&
-    typeof (m as any).to?.r === 'number' &&
-    typeof (m as any).to?.c === 'number'
-  );
+type PawnMoveLike = Extract<Move, { type: 'PawnMove' }>;
+function isPawnMove(m: Move): m is PawnMoveLike {
+  return m.type === 'PawnMove';
 }
 
 export function renderBoardState(state: GameState): string {
