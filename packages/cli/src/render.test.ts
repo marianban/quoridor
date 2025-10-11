@@ -1,6 +1,14 @@
 import { describe, it, expect } from 'vitest';
 import { Game, legalMoves, type Move } from '@quoridor/core';
-import { renderBoardState } from './render.js';
+import {
+  renderBoardState,
+  buildBlockedMaps,
+  computePawnHighlights,
+  keyOf,
+  cellCharAt,
+  renderCellLine,
+  renderWallLine,
+} from './render.js';
 
 describe('renderBoardState', () => {
   it('renders initial board with legal moves highlighted', () => {
@@ -59,5 +67,48 @@ describe('renderBoardState', () => {
         expect(wallRow[idx(c)]).toBe('-');
       }
     }
+  });
+
+  it('buildBlockedMaps maps edges correctly', () => {
+    const { hBlock, vBlock } = buildBlockedMaps([
+      '0,0|0,1', // horizontal adjacency -> hBlock[0][0]
+      '1,2|2,2', // vertical adjacency -> vBlock[1][2]
+    ]);
+    expect(hBlock[0][0]).toBe(true);
+    expect(vBlock[1][2]).toBe(true);
+  });
+
+  it('computePawnHighlights returns legal destinations', () => {
+    const g = Game.initial();
+    const hs = computePawnHighlights(g.state);
+    expect(hs.has(keyOf(0, 3))).toBe(true);
+    expect(hs.has(keyOf(0, 5))).toBe(true);
+    expect(hs.has(keyOf(1, 4))).toBe(true);
+  });
+
+  it('cellCharAt renders pieces and highlights', () => {
+    const g = Game.initial();
+    const hs = computePawnHighlights(g.state);
+    // P1 and P2
+    expect(cellCharAt(g.state, hs, 0, 4)).toBe('1');
+    expect(cellCharAt(g.state, hs, 8, 4)).toBe('2');
+    // A highlighted move
+    expect(cellCharAt(g.state, hs, 0, 5)).toBe('*');
+    // Non-highlight empty
+    expect(cellCharAt(g.state, hs, 0, 0)).toBe('.');
+  });
+
+  it('renderCellLine and renderWallLine compose correctly', () => {
+    const g = Game.initial();
+    const { hBlock, vBlock } = buildBlockedMaps(['0,0|0,1', '0,4|0,5', '0,7|0,8', '0,0|1,0']);
+    const hs = computePawnHighlights(g.state);
+    const row0 = renderCellLine(g.state, hs, hBlock[0], 0);
+    const wall0 = renderWallLine(vBlock[0]);
+    // Expect '|' positions at between cells (0|1), (4|5), (7|8) -> indices 1, 9, 15
+    expect(row0[1]).toBe('|');
+    expect(row0[9]).toBe('|');
+    expect(row0[15]).toBe('|');
+    // Expect '-' at column 0 under row 0
+    expect(wall0[0]).toBe('-');
   });
 });
