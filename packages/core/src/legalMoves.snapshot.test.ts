@@ -1,7 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { applyMove, canApplyMove, createInitialState, legalMoves } from './index.js';
 
-function applyOrThrow(state: ReturnType<typeof createInitialState>, move: Parameters<typeof applyMove>[1]) {
+function applyOrThrow(
+  state: ReturnType<typeof createInitialState>,
+  move: Parameters<typeof applyMove>[1],
+) {
   const can = canApplyMove(state, move);
   if (!can.ok) throw new Error(`Illegal move in setup: ${can.code} - ${can.reason}`);
   const res = applyMove(state, move);
@@ -44,8 +47,8 @@ describe('legalMoves snapshots (mid-game)', () => {
     s = applyOrThrow(s, { type: 'WallPlacement', anchor: { r: 3, c: 3 }, o: 'H' });
     // P2: V(3,5)
     s = applyOrThrow(s, { type: 'WallPlacement', anchor: { r: 3, c: 5 }, o: 'V' });
-  // P1: H(5,3) (avoid overlap with H(3,3))
-  s = applyOrThrow(s, { type: 'WallPlacement', anchor: { r: 5, c: 3 }, o: 'H' });
+    // P1: H(5,3) (avoid overlap with H(3,3))
+    s = applyOrThrow(s, { type: 'WallPlacement', anchor: { r: 5, c: 3 }, o: 'H' });
     // P2: V(2,3)
     s = applyOrThrow(s, { type: 'WallPlacement', anchor: { r: 2, c: 3 }, o: 'V' });
 

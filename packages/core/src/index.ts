@@ -1,4 +1,13 @@
-import type { CreateOptions, GameState, Move, Orientation, Player, Result, WallPlacement, PawnMove } from './types';
+import type {
+  CreateOptions,
+  GameState,
+  Move,
+  Orientation,
+  Player,
+  Result,
+  WallPlacement,
+  PawnMove,
+} from './types';
 import { canPlaceWall, generatePawnMoves, edgesForWall } from './rules.js';
 
 export { type Coord, type GameState, type Move, type Player, type Result } from './types';
@@ -38,8 +47,13 @@ export function legalMoves(state: GameState): Move[] {
     }
   }
   // Deterministic ordering: PawnMove before WallPlacement; sort by tuple
-  pawnMoves.sort((a, b) => (a.to.r - b.to.r) || (a.to.c - b.to.c));
-  walls.sort((a, b) => (a.o === b.o ? 0 : a.o === 'H' ? -1 : 1) || a.anchor.r - b.anchor.r || a.anchor.c - b.anchor.c);
+  pawnMoves.sort((a, b) => a.to.r - b.to.r || a.to.c - b.to.c);
+  walls.sort(
+    (a, b) =>
+      (a.o === b.o ? 0 : a.o === 'H' ? -1 : 1) ||
+      a.anchor.r - b.anchor.r ||
+      a.anchor.c - b.anchor.c,
+  );
   return [...pawnMoves, ...walls];
 }
 
@@ -47,8 +61,12 @@ export function canApplyMove(state: GameState, move: Move): Result<void> {
   if (isTerminal(state)) return { ok: false, code: 'already_terminal', reason: 'Game ended' };
   // turn check implicit: moves don’t carry player; we validate against state.turn
   if (move.type === 'PawnMove') {
-    const allowed = generatePawnMoves(state, state.turn).some((p) => p.r === move.to.r && p.c === move.to.c);
-    return allowed ? { ok: true, value: undefined } : { ok: false, code: 'illegal_pawn_move', reason: 'Destination not legal' };
+    const allowed = generatePawnMoves(state, state.turn).some(
+      (p) => p.r === move.to.r && p.c === move.to.c,
+    );
+    return allowed
+      ? { ok: true, value: undefined }
+      : { ok: false, code: 'illegal_pawn_move', reason: 'Destination not legal' };
   }
   // WallPlacement
   const remaining = state.wallsRemaining[state.turn];
@@ -77,7 +95,10 @@ export function applyMove(state: GameState, move: Move): Result<GameState> {
   // reuse rules.edgesForWall through canPlaceWall already; recompute here for clarity
   const newEdges = edgesForWall({ r: move.anchor.r, c: move.anchor.c, o: move.o });
   const blockedEdges = [...state.blockedEdges, ...newEdges];
-  const wallsRemaining: GameState['wallsRemaining'] = { ...state.wallsRemaining, [who]: state.wallsRemaining[who] - 1 };
+  const wallsRemaining: GameState['wallsRemaining'] = {
+    ...state.wallsRemaining,
+    [who]: state.wallsRemaining[who] - 1,
+  };
   const next: GameState = {
     ...state,
     placedWalls,
@@ -131,20 +152,34 @@ function isGameState(x: unknown): x is GameState {
   if (!isCoord(p1) || !isCoord(p2)) return false;
   const wallsRem = obj.wallsRemaining as any;
   if (!wallsRem || typeof wallsRem.P1 !== 'number' || typeof wallsRem.P2 !== 'number') return false;
-  if (!Array.isArray(obj.placedWalls) || !Array.isArray(obj.blockedEdges) || !Array.isArray(obj.history)) return false;
+  if (
+    !Array.isArray(obj.placedWalls) ||
+    !Array.isArray(obj.blockedEdges) ||
+    !Array.isArray(obj.history)
+  )
+    return false;
 
   // placedWalls items: { r: 0..7, c: 0..7, o: 'H'|'V' }
   const validWall = (w: any) =>
-    w && typeof w.r === 'number' && typeof w.c === 'number' && w.r >= 0 && w.r <= 7 && w.c >= 0 && w.c <= 7 && (w.o === 'H' || w.o === 'V');
+    w &&
+    typeof w.r === 'number' &&
+    typeof w.c === 'number' &&
+    w.r >= 0 &&
+    w.r <= 7 &&
+    w.c >= 0 &&
+    w.c <= 7 &&
+    (w.o === 'H' || w.o === 'V');
   if (!(obj.placedWalls as any[]).every(validWall)) return false;
 
   // blockedEdges strings format: "r1,c1|r2,c2"
   const edgeRe = /^\d+,\d+\|\d+,\d+$/;
-  if (!(obj.blockedEdges as any[]).every((s) => typeof s === 'string' && edgeRe.test(s))) return false;
+  if (!(obj.blockedEdges as any[]).every((s) => typeof s === 'string' && edgeRe.test(s)))
+    return false;
 
   // history union members: PawnMove | WallPlacement
   const isPawnMove = (m: any) => m && m.type === 'PawnMove' && isCoord(m.to);
-  const isWallPlacement = (m: any) => m && m.type === 'WallPlacement' && validWall({ r: m.anchor?.r, c: m.anchor?.c, o: m.o });
+  const isWallPlacement = (m: any) =>
+    m && m.type === 'WallPlacement' && validWall({ r: m.anchor?.r, c: m.anchor?.c, o: m.o });
   if (!(obj.history as any[]).every((m) => isPawnMove(m) || isWallPlacement(m))) return false;
 
   return true;

@@ -13,7 +13,7 @@ export default [
       globals: {
         ...globals.node,
       },
-  parser: tsParser,
+      parser: tsParser,
       parserOptions: {
         project: false,
       },

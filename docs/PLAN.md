@@ -94,8 +94,6 @@
 - Scenario tests from published Quoridor examples.
 - Snapshot tests for legalMoves on canonical states.
 
-
-
 ## Tooling (selected)
 
 - npm workspaces for monorepo.
@@ -133,7 +131,6 @@
 - CI: none initially.
 - Package manager: npm workspaces.
 
-
-
 ---
+
 See also: docs/specs and docs/technical for deeper details.

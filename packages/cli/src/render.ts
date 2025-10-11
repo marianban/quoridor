@@ -2,7 +2,11 @@ import { GameState, Move } from '@quoridor/core';
 import { legalMoves } from '@quoridor/core';
 
 function isPawnMove(m: Move): m is { type: 'PawnMove'; to: { r: number; c: number } } {
-  return (m as any).type === 'PawnMove' && typeof (m as any).to?.r === 'number' && typeof (m as any).to?.c === 'number';
+  return (
+    (m as any).type === 'PawnMove' &&
+    typeof (m as any).to?.r === 'number' &&
+    typeof (m as any).to?.c === 'number'
+  );
 }
 
 export function renderBoardState(state: GameState): string {
@@ -12,12 +16,17 @@ export function renderBoardState(state: GameState): string {
     const [a, b] = e.split('|');
     const [r1s, c1s] = a.split(',');
     const [r2s, c2s] = b.split(',');
-    const r1 = Number(r1s), c1 = Number(c1s), r2 = Number(r2s), c2 = Number(c2s);
+    const r1 = Number(r1s),
+      c1 = Number(c1s),
+      r2 = Number(r2s),
+      c2 = Number(c2s);
     if (r1 === r2) {
-      const r = r1; const c = Math.min(c1, c2);
+      const r = r1;
+      const c = Math.min(c1, c2);
       if (r >= 0 && r <= 8 && c >= 0 && c <= 7) hBlock[r][c] = true;
     } else if (c1 === c2) {
-      const c = c1; const r = Math.min(r1, r2);
+      const c = c1;
+      const r = Math.min(r1, r2);
       if (r >= 0 && r <= 7 && c >= 0 && c <= 8) vBlock[r][c] = true;
     }
   }

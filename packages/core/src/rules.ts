@@ -63,7 +63,10 @@ export function inBoundsWallAnchor(w: Wall): boolean {
 }
 
 export function isOccupied(state: GameState, p: Coord): boolean {
-  return (state.pawns.P1.r === p.r && state.pawns.P1.c === p.c) || (state.pawns.P2.r === p.r && state.pawns.P2.c === p.c);
+  return (
+    (state.pawns.P1.r === p.r && state.pawns.P1.c === p.c) ||
+    (state.pawns.P2.r === p.r && state.pawns.P2.c === p.c)
+  );
 }
 
 export function generatePawnMoves(state: GameState, who: Player): Coord[] {
@@ -136,7 +139,8 @@ export function generatePawnMoves(state: GameState, who: Player): Coord[] {
 }
 
 export function canPlaceWall(state: GameState, w: Wall): Result<void> {
-  if (!inBoundsWallAnchor(w)) return { ok: false, code: 'bounds_wall_anchor', reason: 'Wall anchor out of bounds' };
+  if (!inBoundsWallAnchor(w))
+    return { ok: false, code: 'bounds_wall_anchor', reason: 'Wall anchor out of bounds' };
   // overlap: any segment already blocked
   const segs = edgesForWall(w);
   if (segs.some((e) => state.blockedEdges.includes(e))) {

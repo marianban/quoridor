@@ -5,9 +5,19 @@ import { edgesForWall } from './rules';
 describe('wall legality edge cases', () => {
   it('rejects out-of-bounds wall anchors', () => {
     const s = createInitialState();
-    expect(canApplyMove(s, { type: 'WallPlacement', anchor: { r: 8, c: 7 }, o: 'H' }).ok).toBe(false);
-    expect(canApplyMove(s, { type: 'WallPlacement', anchor: { r: 7, c: 8 }, o: 'V' }).ok).toBe(false);
-    expect(canApplyMove(s, { type: 'WallPlacement', anchor: { r: -1 as unknown as number, c: 0 }, o: 'H' }).ok).toBe(false);
+    expect(canApplyMove(s, { type: 'WallPlacement', anchor: { r: 8, c: 7 }, o: 'H' }).ok).toBe(
+      false,
+    );
+    expect(canApplyMove(s, { type: 'WallPlacement', anchor: { r: 7, c: 8 }, o: 'V' }).ok).toBe(
+      false,
+    );
+    expect(
+      canApplyMove(s, {
+        type: 'WallPlacement',
+        anchor: { r: -1 as unknown as number, c: 0 },
+        o: 'H',
+      }).ok,
+    ).toBe(false);
   });
 
   it('disallows overlap and crossing at same anchor', () => {

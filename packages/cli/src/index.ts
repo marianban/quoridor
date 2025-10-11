@@ -3,7 +3,11 @@ import readline from 'readline';
 import { Game } from '@quoridor/core';
 import { renderBoard } from './render.js';
 
-type Cmd = { kind: 'move'; to: string } | { kind: 'wall'; anchor: string; o: 'H' | 'V' } | { kind: 'help' } | { kind: 'quit' };
+type Cmd =
+  | { kind: 'move'; to: string }
+  | { kind: 'wall'; anchor: string; o: 'H' | 'V' }
+  | { kind: 'help' }
+  | { kind: 'quit' };
 
 function parse(input: string): Cmd | null {
   const t = input.trim();
@@ -38,7 +42,7 @@ function help(): string {
   return [
     'Commands:',
     '  move r,c         # move pawn to coordinate (e.g., move 1,4)',
-    "  wall r,c O       # place wall at anchor r,c with orientation O in {H,V} (e.g., wall 3,3 H)",
+    '  wall r,c O       # place wall at anchor r,c with orientation O in {H,V} (e.g., wall 3,3 H)',
     '  help             # show this help',
     '  quit             # exit',
   ].join('\n');
@@ -81,7 +85,7 @@ async function main() {
         console.log(`Error: ${res.code} - ${res.reason}`);
       } else {
         g = res.value;
-  console.log(renderBoard(g));
+        console.log(renderBoard(g));
         console.log(fmtStateBanner(g));
       }
       continue;
@@ -97,7 +101,7 @@ async function main() {
         console.log(`Error: ${res.code} - ${res.reason}`);
       } else {
         g = res.value;
-  console.log(renderBoard(g));
+        console.log(renderBoard(g));
         console.log(fmtStateBanner(g));
       }
     }

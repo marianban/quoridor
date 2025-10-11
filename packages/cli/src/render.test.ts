@@ -37,16 +37,21 @@ describe('renderBoardState', () => {
       const [a, b] = e.split('|');
       const [r1s, c1s] = a.split(',');
       const [r2s, c2s] = b.split(',');
-      const r1 = Number(r1s), c1 = Number(c1s), r2 = Number(r2s), c2 = Number(c2s);
+      const r1 = Number(r1s),
+        c1 = Number(c1s),
+        r2 = Number(r2s),
+        c2 = Number(c2s);
       if (r1 === r2) {
         // horizontal adjacency (between cells in same row): expect '|'
-        const r = r1, c = Math.min(c1, c2);
+        const r = r1,
+          c = Math.min(c1, c2);
         const cellRow = lines[r * 2];
         const barIdx = idx(c) + 1; // between c and c+1
         expect(cellRow[barIdx]).toBe('|');
       } else if (c1 === c2) {
         // vertical adjacency (between rows): expect '-'
-        const c = c1, r = Math.min(r1, r2);
+        const c = c1,
+          r = Math.min(r1, r2);
         const wallRow = lines[r * 2 + 1];
         expect(wallRow[idx(c)]).toBe('-');
       }

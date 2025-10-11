@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { createInitialState, serialize, deserialize, isTerminal, legalMoves, Game, applyMove, getWinner } from './index.js';
+import {
+  createInitialState,
+  serialize,
+  deserialize,
+  isTerminal,
+  legalMoves,
+  Game,
+  applyMove,
+  getWinner,
+} from './index.js';
 
 describe('core skeleton', () => {
   it('creates initial state correctly', () => {

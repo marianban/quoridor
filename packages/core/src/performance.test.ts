@@ -16,7 +16,10 @@ function setupScenarioA() {
   return s;
 }
 
-function applyOrThrow(state: ReturnType<typeof createInitialState>, move: Parameters<typeof applyMove>[1]) {
+function applyOrThrow(
+  state: ReturnType<typeof createInitialState>,
+  move: Parameters<typeof applyMove>[1],
+) {
   const can = canApplyMove(state, move);
   if (!can.ok) throw new Error(`Illegal move in setup: ${can.code} - ${can.reason}`);
   const res = applyMove(state, move);

@@ -5,7 +5,11 @@ export type Orientation = 'H' | 'V';
 export type Wall = { r: number; c: number; o: Orientation }; // anchors 0..7
 
 export type PawnMove = { type: 'PawnMove'; to: Coord };
-export type WallPlacement = { type: 'WallPlacement'; anchor: { r: number; c: number }; o: Orientation };
+export type WallPlacement = {
+  type: 'WallPlacement';
+  anchor: { r: number; c: number };
+  o: Orientation;
+};
 export type Move = PawnMove | WallPlacement;
 
 export type ErrorCode =
