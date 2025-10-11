@@ -48,4 +48,66 @@ describe('rules utilities', () => {
       expect(canPlaceWall(s2, { r: 0, c: 0, o: 'V' }).ok).toBe(false);
     }
   });
+
+  describe('pawn jumps and diagonals', () => {
+    it('straight jump forward allows only the jump in that direction (no diagonals), other orth moves remain', () => {
+      const s = createInitialState();
+      const s1 = {
+        ...s,
+        pawns: { P1: { r: 3, c: 4 }, P2: { r: 4, c: 4 } },
+      } as const;
+      const m = generatePawnMoves(s1, 'P1');
+      const has = (r: number, c: number) => m.some((p) => p.r === r && p.c === c);
+      // jump over opponent
+      expect(has(5, 4)).toBe(true);
+      // diagonals around opponent should NOT be present when straight jump is available
+      expect(has(4, 3)).toBe(false);
+      expect(has(4, 5)).toBe(false);
+      // other directions still allowed
+      expect(has(2, 4)).toBe(true); // up
+      expect(has(3, 3)).toBe(true); // left
+      expect(has(3, 5)).toBe(true); // right
+    });
+
+    it('diagonal-around when jump is blocked by a wall', () => {
+      const base = createInitialState();
+      const s1 = {
+        ...base,
+        pawns: { P1: { r: 3, c: 4 }, P2: { r: 4, c: 4 } },
+      } as const;
+      // Block the edge from opponent (4,4) to beyond (5,4) with vertical wall at (4,4)
+      const segs = edgesForWall({ r: 4, c: 4, o: 'V' });
+      const s2 = { ...s1, blockedEdges: [...s1.blockedEdges, ...segs] } as const;
+      const m = generatePawnMoves(s2, 'P1');
+      const has = (r: number, c: number) => m.some((p) => p.r === r && p.c === c);
+      // straight jump not allowed
+      expect(has(5, 4)).toBe(false);
+      // diagonals allowed
+      expect(has(4, 3)).toBe(true);
+      expect(has(4, 5)).toBe(true);
+      // other orth moves still allowed
+      expect(has(2, 4)).toBe(true);
+      expect(has(3, 3)).toBe(true);
+      expect(has(3, 5)).toBe(true);
+    });
+
+    it('diagonal-around when jump is impossible due to board edge', () => {
+      const s = createInitialState();
+      const s1 = {
+        ...s,
+        pawns: { P1: { r: 7, c: 4 }, P2: { r: 8, c: 4 } },
+      } as const;
+      const m = generatePawnMoves(s1, 'P1');
+      const has = (r: number, c: number) => m.some((p) => p.r === r && p.c === c);
+      // no straight jump (beyond would be out of bounds)
+      expect(has(9, 4)).toBe(false);
+      // diagonals allowed
+      expect(has(8, 3)).toBe(true);
+      expect(has(8, 5)).toBe(true);
+      // other orth moves still allowed
+      expect(has(6, 4)).toBe(true);
+      expect(has(7, 3)).toBe(true);
+      expect(has(7, 5)).toBe(true);
+    });
+  });
 });
