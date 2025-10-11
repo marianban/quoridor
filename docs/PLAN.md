@@ -29,7 +29,7 @@
   - Board model (9x9), coordinates, walls, pawn positions.
   - Rules: legal pawn moves incl. jumps/diagonals, legal wall placements, path-existence check.
   - Deterministic state transitions (applyMove) and serialization.
-  - Pathfinding: BFS on a dynamic adjacency graph minus blocked edges.
+  - Reachability: graph search on a dynamic adjacency graph (blocked edges) to ensure wall placements keep at least one path for each player. (Shortest path optional for AI later.)
   - Acceptance tests for standard scenarios and edge-cases.
 
 - M2 – Minimal UI Adapter (Local PvP)

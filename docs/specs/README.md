@@ -21,7 +21,7 @@ This folder contains the formal game rules and engine contracts for the core.
 ## 3. Algorithms
 
 - Legal move generation
-- Pathfinding (shortest path): BFS over dynamic adjacency from blocked edges
+- Reachability check for wall legality: graph search over dynamic adjacency from blocked edges
 - Validation ordering and reason codes
 
 ## 4. Public API Contracts (Core)
