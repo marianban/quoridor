@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createInitialState, serialize, deserialize, isTerminal, legalMoves, Game } from './index';
+import { createInitialState, serialize, deserialize, isTerminal, legalMoves, Game, applyMove, getWinner } from './index';
 
 describe('core skeleton', () => {
   it('creates initial state correctly', () => {
@@ -51,5 +51,39 @@ describe('core skeleton', () => {
       // history appended
       expect(g2.state.history[g2.state.history.length - 1]).toEqual(firstPawn);
     }
+  });
+
+  it('detects terminal state and winner when P1 reaches last row', () => {
+    let s = createInitialState();
+    // advance P1 toward last row; on P2 turns place a harmless wall once
+    let placed = false;
+    for (let iter = 0; iter < 32; iter++) {
+      if (isTerminal(s)) break;
+      if (s.turn === 'P1') {
+        const startR = s.pawns.P1.r;
+        const mv = legalMoves(s).find((m) => m.type === 'PawnMove' && m.to.r > startR);
+        if (!mv) throw new Error('Expected a forward pawn move for P1');
+        const r1 = applyMove(s, mv);
+        if (!r1.ok) throw new Error('apply failed');
+        s = r1.value;
+      } else {
+        if (!placed) {
+          const wall = { type: 'WallPlacement' as const, anchor: { r: 0, c: 0 }, o: 'H' as const };
+          const r2 = applyMove(s, wall);
+          if (r2.ok) s = r2.value;
+          placed = true;
+        } else {
+          // skip turn simulation by making a legal pawn move for P2 upwards
+          const startR = s.pawns.P2.r;
+          const mv2 = legalMoves(s).find((m) => m.type === 'PawnMove' && m.to.r < startR);
+          if (!mv2) break;
+          const r3 = applyMove(s, mv2);
+          if (r3.ok) s = r3.value;
+        }
+      }
+    }
+    expect(isTerminal(s)).toBe(true);
+    expect(getWinner(s)).toBe('P1');
+    expect(legalMoves(s)).toEqual([]);
   });
 });
