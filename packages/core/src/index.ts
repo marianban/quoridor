@@ -132,5 +132,20 @@ function isGameState(x: unknown): x is GameState {
   const wallsRem = obj.wallsRemaining as any;
   if (!wallsRem || typeof wallsRem.P1 !== 'number' || typeof wallsRem.P2 !== 'number') return false;
   if (!Array.isArray(obj.placedWalls) || !Array.isArray(obj.blockedEdges) || !Array.isArray(obj.history)) return false;
+
+  // placedWalls items: { r: 0..7, c: 0..7, o: 'H'|'V' }
+  const validWall = (w: any) =>
+    w && typeof w.r === 'number' && typeof w.c === 'number' && w.r >= 0 && w.r <= 7 && w.c >= 0 && w.c <= 7 && (w.o === 'H' || w.o === 'V');
+  if (!(obj.placedWalls as any[]).every(validWall)) return false;
+
+  // blockedEdges strings format: "r1,c1|r2,c2"
+  const edgeRe = /^\d+,\d+\|\d+,\d+$/;
+  if (!(obj.blockedEdges as any[]).every((s) => typeof s === 'string' && edgeRe.test(s))) return false;
+
+  // history union members: PawnMove | WallPlacement
+  const isPawnMove = (m: any) => m && m.type === 'PawnMove' && isCoord(m.to);
+  const isWallPlacement = (m: any) => m && m.type === 'WallPlacement' && validWall({ r: m.anchor?.r, c: m.anchor?.c, o: m.o });
+  if (!(obj.history as any[]).every((m) => isPawnMove(m) || isWallPlacement(m))) return false;
+
   return true;
 }
