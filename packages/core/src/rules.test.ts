@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { createInitialState, applyMove } from './index';
-import { edgeKey, edgesForWall, neighbors, hasPathToGoal, generatePawnMoves, canPlaceWall } from './rules';
+import { createInitialState, applyMove } from './index.js';
+import { edgeKey, edgesForWall, neighbors, hasPathToGoal, generatePawnMoves, canPlaceWall } from './rules.js';
 
 describe('rules utilities', () => {
   it('edgeKey normalizes order', () => {

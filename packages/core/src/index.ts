@@ -1,8 +1,8 @@
 import type { CreateOptions, GameState, Move, Orientation, Player, Result, WallPlacement, PawnMove } from './types';
-import { canPlaceWall, generatePawnMoves, edgesForWall } from './rules';
+import { canPlaceWall, generatePawnMoves, edgesForWall } from './rules.js';
 
 export { type Coord, type GameState, type Move, type Player, type Result } from './types';
-export { Game } from './game';
+export { Game } from './game.js';
 
 export function createInitialState(options?: CreateOptions): GameState {
   return {

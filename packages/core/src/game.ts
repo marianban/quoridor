@@ -1,5 +1,5 @@
-import type { CreateOptions, GameState, Move, Player, Result } from './types';
-import { applyMove as coreApplyMove, canApplyMove as coreCanApplyMove, createInitialState, getWinner, isTerminal, legalMoves as coreLegalMoves } from './index';
+import type { CreateOptions, GameState, Move, Player, Result } from './types.js';
+import { applyMove as coreApplyMove, canApplyMove as coreCanApplyMove, createInitialState, getWinner, isTerminal, legalMoves as coreLegalMoves } from './index.js';
 
 export class Game {
   private readonly _state: GameState;

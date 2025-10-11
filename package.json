@@ -6,9 +6,10 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run -w @quoridor/core build",
+    "build": "npm run -w @quoridor/core build && npm run -w @quoridor/cli build",
     "test": "npm run -w @quoridor/core test",
-    "typecheck": "npm run -w @quoridor/core typecheck",
+    "typecheck": "npm run -w @quoridor/core typecheck && npm run -w @quoridor/cli typecheck",
+    "start:cli": "npm run -w @quoridor/cli start",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier . --write",

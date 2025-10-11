@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { applyMove, canApplyMove, createInitialState, legalMoves } from './index';
+import { applyMove, canApplyMove, createInitialState, legalMoves } from './index.js';
 
 function applyOrThrow(state: ReturnType<typeof createInitialState>, move: Parameters<typeof applyMove>[1]) {
   const can = canApplyMove(state, move);

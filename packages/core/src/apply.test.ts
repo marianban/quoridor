@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { applyMove, canApplyMove, createInitialState, legalMoves, isTerminal } from './index';
-import { edgesForWall } from './rules';
+import { applyMove, canApplyMove, createInitialState, legalMoves, isTerminal } from './index.js';
+import { edgesForWall } from './rules.js';
 
 describe('applyMove end-to-end', () => {
   it('applies a wall placement immutably and updates state', () => {
