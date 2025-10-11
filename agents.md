@@ -94,3 +94,10 @@ This document tracks key decisions and conventions so contributors (including AI
   - Edge key encoding uses strings normalized as "r1,c1|r2,c2". No bitset representation will be used.
   - GameState includes a history array of moves for replay; history is immutable append-only.
 - Consequences: Improves readability and debuggability; small overhead acceptable for 9x9 board size.
+
+## ADR-0014: Strict TypeScript Typings (No `as` Assertions)
+
+- Status: Decided
+- Context: Reduce runtime type risks and keep types trustworthy. Avoid using `as` to force types, which can hide bugs and weaken type safety.
+- Decision: Do not use TypeScript `as` assertions in core code. Prefer precise types, discriminated unions, type guards, and narrowing. For literals, avoid `as const` where it would constrain types incorrectly across public APIs. When parsing untyped data (e.g., JSON), use explicit type guards instead of casting.
+- Consequences: Clearer, safer code; slightly more verbose guards and helper functions (e.g., `isGameState`). Lint and reviews should flag `as` usages in core. Adapters may use assertions sparingly at boundaries, but core remains assertion-free.

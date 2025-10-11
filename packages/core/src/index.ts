@@ -1,4 +1,4 @@
-import type { CreateOptions, GameState, Move, Player, Result, WallPlacement, PawnMove } from './types';
+import type { CreateOptions, GameState, Move, Orientation, Player, Result, WallPlacement, PawnMove } from './types';
 import { canPlaceWall, generatePawnMoves, edgesForWall } from './rules';
 
 export { type Coord, type GameState, type Move, type Player, type Result } from './types';
@@ -12,7 +12,7 @@ export function createInitialState(options?: CreateOptions): GameState {
     placedWalls: [],
     blockedEdges: [],
     history: [],
-  } as const;
+  };
 }
 
 export function legalMoves(state: GameState): Move[] {
@@ -27,7 +27,8 @@ export function legalMoves(state: GameState): Move[] {
   if (remaining > 0) {
     for (let r = 0; r <= 7; r++) {
       for (let c = 0; c <= 7; c++) {
-        for (const o of ['H', 'V'] as const) {
+        const orientations: Orientation[] = ['H', 'V'];
+        for (const o of orientations) {
           const wp: WallPlacement = { type: 'WallPlacement', anchor: { r, c }, o };
           const check = canPlaceWall(state, { r, c, o });
           if (check.ok) walls.push(wp);
@@ -56,10 +57,10 @@ export function canApplyMove(state: GameState, move: Move): Result<void> {
 
 export function applyMove(state: GameState, move: Move): Result<GameState> {
   const check = canApplyMove(state, move);
-  if (!check.ok) return check as Result<GameState>;
+  if (!check.ok) return { ok: false, code: check.code, reason: check.reason };
   if (move.type === 'PawnMove') {
     const who = state.turn;
-    const pawns = { ...state.pawns, [who]: { r: move.to.r, c: move.to.c } } as GameState['pawns'];
+    const pawns: GameState['pawns'] = { ...state.pawns, [who]: { r: move.to.r, c: move.to.c } };
     const next: GameState = {
       ...state,
       pawns,
@@ -75,7 +76,7 @@ export function applyMove(state: GameState, move: Move): Result<GameState> {
   // reuse rules.edgesForWall through canPlaceWall already; recompute here for clarity
   const newEdges = edgesForWall({ r: move.anchor.r, c: move.anchor.c, o: move.o });
   const blockedEdges = [...state.blockedEdges, ...newEdges];
-  const wallsRemaining = { ...state.wallsRemaining, [who]: state.wallsRemaining[who] - 1 } as GameState['wallsRemaining'];
+  const wallsRemaining: GameState['wallsRemaining'] = { ...state.wallsRemaining, [who]: state.wallsRemaining[who] - 1 };
   const next: GameState = {
     ...state,
     placedWalls,
@@ -107,21 +108,28 @@ export function serialize(state: GameState): string {
 
 export function deserialize(json: string): Result<GameState> {
   try {
-    const parsed = JSON.parse(json) as Partial<GameState>;
-    // Minimal shape check
-    if (
-      parsed &&
-      parsed.boardSize === 9 &&
-      parsed.pawns &&
-      parsed.wallsRemaining &&
-      parsed.blockedEdges &&
-      parsed.history &&
-      parsed.turn
-    ) {
-      return { ok: true, value: parsed as GameState };
-    }
+    const parsed: unknown = JSON.parse(json);
+    // Minimal shape check via type guard
+    if (isGameState(parsed)) return { ok: true, value: parsed };
   } catch {
     // swallow and return invalid
   }
   return { ok: false, code: 'deserialize_invalid', reason: 'Invalid or incompatible state JSON' };
+}
+
+function isGameState(x: unknown): x is GameState {
+  if (!x || typeof x !== 'object') return false;
+  const obj = x as Record<string, unknown>;
+  if (obj.boardSize !== 9) return false;
+  if (obj.turn !== 'P1' && obj.turn !== 'P2') return false;
+  const pawns = obj.pawns as unknown;
+  if (!pawns || typeof pawns !== 'object') return false;
+  const p1 = (pawns as any).P1;
+  const p2 = (pawns as any).P2;
+  const isCoord = (v: any) => v && typeof v.r === 'number' && typeof v.c === 'number';
+  if (!isCoord(p1) || !isCoord(p2)) return false;
+  const wallsRem = obj.wallsRemaining as any;
+  if (!wallsRem || typeof wallsRem.P1 !== 'number' || typeof wallsRem.P2 !== 'number') return false;
+  if (!Array.isArray(obj.placedWalls) || !Array.isArray(obj.blockedEdges) || !Array.isArray(obj.history)) return false;
+  return true;
 }
