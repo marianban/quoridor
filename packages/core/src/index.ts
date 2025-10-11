@@ -2,6 +2,7 @@ import type { CreateOptions, GameState, Move, Orientation, Player, Result, WallP
 import { canPlaceWall, generatePawnMoves, edgesForWall } from './rules';
 
 export { type Coord, type GameState, type Move, type Player, type Result } from './types';
+export { Game } from './game';
 
 export function createInitialState(options?: CreateOptions): GameState {
   return {

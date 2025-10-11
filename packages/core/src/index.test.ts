@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createInitialState, serialize, deserialize, isTerminal, legalMoves } from './index';
+import { createInitialState, serialize, deserialize, isTerminal, legalMoves, Game } from './index';
 
 describe('core skeleton', () => {
   it('creates initial state correctly', () => {
@@ -30,6 +30,26 @@ describe('core skeleton', () => {
     expect(out.ok).toBe(true);
     if (out.ok) {
       expect(out.value.boardSize).toBe(9);
+    }
+  });
+
+  it('Game wrapper delegates and preserves immutability', () => {
+    const g = Game.initial();
+    const before = g.state;
+    const ms = g.legalMoves();
+    expect(ms.length).toBeGreaterThan(0);
+    const firstPawn = ms.find((m) => m.type === 'PawnMove');
+    if (!firstPawn) throw new Error('expected a pawn move');
+    const res = g.applyMove(firstPawn);
+    expect(res.ok).toBe(true);
+    if (res.ok) {
+      const g2 = res.value;
+      // immutability: original state unchanged
+      expect(g.state).toBe(before);
+      // turn flipped
+      expect(g2.state.turn).not.toBe(g.state.turn);
+      // history appended
+      expect(g2.state.history[g2.state.history.length - 1]).toEqual(firstPawn);
     }
   });
 });
