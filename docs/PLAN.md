@@ -26,7 +26,7 @@
 ## Deliverables by Phase
 
 - M0 – Repo + Tooling
-  - Monorepo setup (pnpm), TypeScript config, linting, formatting, unit test runner, typedoc.
+  - Monorepo setup (npm workspaces), TypeScript config, linting, formatting, unit test runner, typedoc.
 
 - M1 – Core Engine (PvP-ready)
   - Board model (9x9), coordinates, walls, pawn positions.
@@ -36,8 +36,8 @@
   - Acceptance tests for standard scenarios and edge-cases.
 
 - M2 – Minimal UI Adapter (Local PvP)
-  - CLI or simple Web Canvas adapter using core API.
-  - Game loop/controller for two human players, move entry/validation, undo/redo.
+  - CLI adapter using core API (Phase 1 target).
+  - Game loop/controller for two human players, move entry/validation.
 
 - M3 – AI v1 (Baseline)
   - Heuristic evaluation (shortest-path difference, mobility, wall count).
@@ -84,7 +84,7 @@
 
 - Board 9x9; two players start centered on opposite sides.
 - On a turn, a player either moves their pawn or places a wall.
-- Pawn moves: orthogonally to adjacent cell if not blocked; jump over adjacent opponent if possible; if blocked behind, diagonal moves permitted around the opponent.
+- Pawn moves: orthogonally to adjacent cell if not blocked; jump over adjacent opponent if possible; if blocked behind, diagonal moves in general not allowed, diagonal moves permitted around the opponent.
 - Walls: cannot overlap or cross existing walls; must remain within bounds; must not block all paths—each player must retain at least one path to the goal row.
 - Each player has 10 walls.
 - First to reach any cell on their goal row wins.
@@ -104,27 +104,28 @@
 - Property-based tests (fast-check) for invariants: path exists after legal placements, applyMove is pure, symmetry properties.
 - Scenario tests from published Quoridor examples.
 - Snapshot tests for legalMoves on canonical states.
-- E2E smoke tests for adapters (CLI, Web via Playwright) later.
+- E2E smoke tests for adapters (CLI; Web via Playwright later).
 
-## Tooling (proposed)
+## Tooling (selected)
 
-- pnpm workspaces for monorepo.
+- npm workspaces for monorepo (pending confirmation vs yarn).
+  - If you prefer yarn, we can switch with minimal changes.
 - TypeScript strict mode, path aliases, tsup or esbuild for bundling core.
-- Vitest or Jest for tests; ESLint + Prettier.
+- Vitest for tests; ESLint + Prettier.
 - Typedoc for API docs; Changesets for versioning/releases.
-- GitHub Actions for CI (lint, typecheck, test).
+- CI: none initially (can add GitHub Actions later).
 
 ## Milestones & Timeline (rough)
 
 - Week 1: M0 + M1 (engine core, unit tests)
-- Week 2: M2 (CLI or web minimal UI), polish, docs
+- Week 2: M2 (CLI minimal UI), polish, docs
 - Week 3: M3 (AI baseline), playtest, refine eval heuristics
 
 ## Acceptance Criteria (PvP phase)
 
 - Can start a game, alternate turns, enforce rules, detect win.
 - Illegal moves are rejected with clear reasons.
-- State is immutable; history supports undo/redo.
+- State is immutable; (undo/redo optional, not required for MVP).
 - legalMoves completes in <10ms on typical states on a mid machine.
 
 ## Risks & Mitigations
@@ -133,13 +134,18 @@
 - Pathfinding performance → precompute neighbors; avoid recompute with incremental updates if needed.
 - UI drag-and-drop precision → keep hitboxes simple; keyboard fallback.
 
-## Open Questions
+## Decisions (current)
 
-- Preferred UI to implement first: CLI or Web Canvas?
-- Package manager preference (pnpm vs npm vs yarn)?
-- Test runner preference (Vitest vs Jest)?
-- Do we target Node LTS + latest browsers only?
-- Any additional rule variants (board size, walls per player)?
+- Phase 1 UI: CLI.
+- Runtime targets: Node LTS + latest evergreen browsers.
+- Rules: Standard board (9x9) with 10 walls/player; no timers/draw rules for MVP.
+- Monorepo layout: packages for core, agents, ui-cli, ui-web.
+- License: MIT.
+- CI: none initially.
+
+## Outstanding Question
+
+- Package manager: confirm npm workspaces (default) vs yarn workspaces.
 
 ---
 See also: docs/specs and docs/technical for deeper details.

@@ -9,6 +9,10 @@ This folder will contain architecture and design details for the implementation.
 - @quoridor/ui-cli
 - @quoridor/ui-web (and optionally @quoridor/ui-react)
 
+Notes:
+
+- Phase 1 presentation: CLI adapter.
+
 ## 2. Core Engine Design
 
 - Domain types and constraints
@@ -32,8 +36,15 @@ This folder will contain architecture and design details for the implementation.
 
 ## 5. Tooling and CI
 
-- TypeScript config
-- Testing stack
-- Lint/format
-- Docs generation
-- Release/versioning
+- TypeScript config (strict)
+- Testing: Vitest
+- Lint/format: ESLint + Prettier
+- Docs generation: Typedoc
+- Releases: Changesets (optional initially)
+- Monorepo: npm workspaces (pending confirmation vs yarn)
+- CI: none initially (add GitHub Actions later if needed)
+
+## 6. Decisions and Open Questions
+
+- Decisions: CLI first (Phase 1), Node LTS + evergreen browsers, standard 9x9/10 walls, MIT license, no CI initially.
+- Open: Confirm package manager (npm workspaces default) vs yarn.
