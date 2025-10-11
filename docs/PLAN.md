@@ -26,7 +26,7 @@
 ## Deliverables by Phase
 
 - M0 – Repo + Tooling
-  - Monorepo setup (npm workspaces), TypeScript config, linting, formatting, unit test runner, typedoc.
+  - Monorepo setup (npm workspaces), TypeScript config, linting, formatting, unit test runner. (Docs generation via Typedoc optional)
 
 - M1 – Core Engine (PvP-ready)
   - Board model (9x9), coordinates, walls, pawn positions.
@@ -49,7 +49,7 @@
 
 - M5 – Packaging & Docs
   - NPM packages: @quoridor/core, @quoridor/agents, and @quoridor/ui-[adapter].
-  - README, API docs, examples, and a small demo.
+  - README, examples, and a small demo. (API docs via Typedoc optional)
 
 ## Architecture Overview
 
@@ -105,14 +105,14 @@
 - Scenario tests from published Quoridor examples.
 - Snapshot tests for legalMoves on canonical states.
 - E2E smoke tests for adapters (CLI; Web via Playwright later).
+ 
 
 ## Tooling (selected)
 
-- npm workspaces for monorepo (pending confirmation vs yarn).
-  - If you prefer yarn, we can switch with minimal changes.
+- npm workspaces for monorepo.
 - TypeScript strict mode, path aliases, tsup or esbuild for bundling core.
 - Vitest for tests; ESLint + Prettier.
-- Typedoc for API docs; Changesets for versioning/releases.
+- Docs generation: Typedoc (optional; not required initially); Changesets for versioning/releases.
 - CI: none initially (can add GitHub Actions later).
 
 ## Milestones & Timeline (rough)
@@ -142,10 +142,9 @@
 - Monorepo layout: packages for core, agents, ui-cli, ui-web.
 - License: MIT.
 - CI: none initially.
+- Package manager: npm workspaces.
 
-## Outstanding Question
-
-- Package manager: confirm npm workspaces (default) vs yarn workspaces.
+ 
 
 ---
 See also: docs/specs and docs/technical for deeper details.

@@ -41,10 +41,9 @@ Notes:
 - Lint/format: ESLint + Prettier
 - Docs generation: Typedoc
 - Releases: Changesets (optional initially)
-- Monorepo: npm workspaces (pending confirmation vs yarn)
-- CI: none initially (add GitHub Actions later if needed)
+- Monorepo: npm workspaces
+- CI: none initially (can add GitHub Actions later)
 
-## 6. Decisions and Open Questions
+## 6. Decisions
 
-- Decisions: CLI first (Phase 1), Node LTS + evergreen browsers, standard 9x9/10 walls, MIT license, no CI initially.
-- Open: Confirm package manager (npm workspaces default) vs yarn.
+- CLI first (Phase 1), Node LTS + evergreen browsers, standard 9x9/10 walls, MIT license, npm workspaces, no CI initially.

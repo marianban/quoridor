@@ -64,10 +64,10 @@ This document tracks key decisions and conventions so contributors (including AI
 
 ## ADR-0010: Tooling and Test Stack
 
-- Status: Proposed
+- Status: Decided
 - Context: Choose package manager, test runner, and CI policy.
-- Decision: Use npm workspaces for monorepo (pending confirmation vs yarn); Vitest for unit tests; no CI initially.
-- Consequences: Simple setup, fast tests; can add GitHub Actions later.
+- Decision: Use npm workspaces for monorepo; Vitest for unit tests; no CI initially; docs via Typedoc optional.
+- Consequences: Simple setup, fast tests; can add GitHub Actions later; documentation optional at start.
 
 ## ADR-0011: License
 

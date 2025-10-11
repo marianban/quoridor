@@ -23,7 +23,7 @@ This folder will contain the formal game rules and engine contracts. Draft outli
 - Legal move generation
 - Pathfinding (shortest path): BFS details, adjacency computation from blocked edges
 - Validation ordering and reason codes
-	- Use discriminated unions with codes per ADR-0008
+- Use discriminated unions with codes per ADR-0008
 
 ## 4. Public API Contracts (Core)
 
