@@ -70,8 +70,7 @@ function buildDemoGame(): Game {
   for (const move of script) {
     const res = g.applyMove(move); // apply in order; the Game API validates legality
     if (!res.ok) {
-      // If any scripted step fails (unexpected), stop early with what we have.
-      break;
+      throw new Error(`Demo script has illegal move: ${res.code} - ${res.reason}`);
     }
     g = res.value;
   }
