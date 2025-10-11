@@ -69,13 +69,21 @@ describe('renderBoardState', () => {
     }
   });
 
-  it('buildBlockedMaps maps edges correctly', () => {
-    const { hBlock, vBlock } = buildBlockedMaps([
-      '0,0|0,1', // horizontal adjacency -> hBlock[0][0]
-      '1,2|2,2', // vertical adjacency -> vBlock[1][2]
-    ]);
+  it('buildBlockedMaps maps walls correctly', () => {
+    const g = Game.initial();
+    // simulate two walls
+    const state = {
+      ...g.state,
+      placedWalls: [
+        { r: 0, c: 0, o: 'H' }, // should set hBlock[0][0] and hBlock[1][0]
+        { r: 1, c: 2, o: 'V' }, // should set vBlock[1][2] and vBlock[1][3]
+      ],
+    } as typeof g.state;
+    const { hBlock, vBlock } = buildBlockedMaps(state);
     expect(hBlock[0][0]).toBe(true);
+    expect(hBlock[1][0]).toBe(true);
     expect(vBlock[1][2]).toBe(true);
+    expect(vBlock[1][3]).toBe(true);
   });
 
   it('computePawnHighlights returns legal destinations', () => {
@@ -100,15 +108,27 @@ describe('renderBoardState', () => {
 
   it('renderCellLine and renderWallLine compose correctly', () => {
     const g = Game.initial();
-    const { hBlock, vBlock } = buildBlockedMaps(['0,0|0,1', '0,4|0,5', '0,7|0,8', '0,0|1,0']);
+    const state = {
+      ...g.state,
+      placedWalls: [
+        { r: 0, c: 0, o: 'V' }, // '-' at c=0
+        { r: 0, c: 4, o: 'V' }, // '-' at c=4
+        { r: 0, c: 7, o: 'V' }, // '-' at c=7
+        { r: 0, c: 0, o: 'H' }, // '|' at c=0 on rows 0 and 1
+      ],
+    } as typeof g.state;
+    const { hBlock, vBlock } = buildBlockedMaps(state);
     const hs = computePawnHighlights(g.state);
     const row0 = renderCellLine(g.state, hs, hBlock[0], 0);
     const wall0 = renderWallLine(vBlock[0]);
-    // Expect '|' positions at between cells (0|1), (4|5), (7|8) -> indices 1, 9, 15
+    // Expect '|' from the H wall at c=0 between cells (0|1) -> index 1
     expect(row0[1]).toBe('|');
-    expect(row0[9]).toBe('|');
-    expect(row0[15]).toBe('|');
-    // Expect '-' at column 0 under row 0
+    // '|' at c=4 and c=7 should not be set on row0 (those were V walls -> '-')
+    expect(row0[9]).toBe(' ');
+    expect(row0[15]).toBe(' ');
+    // Expect '-' at columns 0,4,7 under row 0 (indices 0,8,14)
     expect(wall0[0]).toBe('-');
+    expect(wall0[8]).toBe('-');
+    expect(wall0[14]).toBe('-');
   });
 });

@@ -6,28 +6,23 @@ function isPawnMove(m: Move): m is PawnMoveLike {
   return m.type === 'PawnMove';
 }
 
-export function buildBlockedMaps(blockedEdges: ReadonlyArray<string>): {
-  hBlock: boolean[][];
-  vBlock: boolean[][];
-} {
-  const hBlock: boolean[][] = Array.from({ length: 9 }, () => Array(8).fill(false)); // between (r,c)-(r,c+1)
-  const vBlock: boolean[][] = Array.from({ length: 8 }, () => Array(9).fill(false)); // between (r,c)-(r+1,c)
-  for (const e of blockedEdges) {
-    const [a, b] = e.split('|');
-    const [r1s, c1s] = a.split(',');
-    const [r2s, c2s] = b.split(',');
-    const r1 = Number(r1s);
-    const c1 = Number(c1s);
-    const r2 = Number(r2s);
-    const c2 = Number(c2s);
-    if (r1 === r2) {
-      const r = r1;
-      const c = Math.min(c1, c2);
-      if (r >= 0 && r <= 8 && c >= 0 && c <= 7) hBlock[r][c] = true;
-    } else if (c1 === c2) {
-      const c = c1;
-      const r = Math.min(r1, r2);
-      if (r >= 0 && r <= 7 && c >= 0 && c <= 8) vBlock[r][c] = true;
+export function buildBlockedMaps(state: GameState): { hBlock: boolean[][]; vBlock: boolean[][] } {
+  const hBlock: boolean[][] = Array.from({ length: 9 }, () => Array(8).fill(false)); // '|' between (r,c)-(r,c+1)
+  const vBlock: boolean[][] = Array.from({ length: 8 }, () => Array(9).fill(false)); // '-' between (r,c)-(r+1,c)
+  for (const w of state.placedWalls) {
+    const { r, c, o } = w;
+    if (o === 'H') {
+      // Horizontal wall blocks horizontal adjacency (rendered as '|') on rows r and r+1 at column c
+      if (r >= 0 && r <= 7 && c >= 0 && c <= 7) {
+        hBlock[r][c] = true;
+        hBlock[r + 1][c] = true;
+      }
+    } else {
+      // Vertical wall blocks vertical adjacency (rendered as '-') on row r at columns c and c+1
+      if (r >= 0 && r <= 7 && c >= 0 && c <= 7) {
+        vBlock[r][c] = true;
+        vBlock[r][c + 1] = true;
+      }
     }
   }
   return { hBlock, vBlock };
@@ -78,7 +73,7 @@ export function renderWallLine(vRow: ReadonlyArray<boolean>): string {
 }
 
 export function renderBoardState(state: GameState): string {
-  const { hBlock, vBlock } = buildBlockedMaps(state.blockedEdges);
+  const { hBlock, vBlock } = buildBlockedMaps(state);
   const highlight = computePawnHighlights(state);
 
   const lines: string[] = [];
