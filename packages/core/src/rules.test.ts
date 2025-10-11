@@ -109,5 +109,24 @@ describe('rules utilities', () => {
       expect(has(7, 3)).toBe(true);
       expect(has(7, 5)).toBe(true);
     });
+
+    it('P2 diagonal-around when jump is impossible due to top edge', () => {
+      const s = createInitialState();
+      const s1 = {
+        ...s,
+        pawns: { P1: { r: 0, c: 4 }, P2: { r: 1, c: 4 } },
+      } as const;
+      const m = generatePawnMoves(s1, 'P2');
+      const has = (r: number, c: number) => m.some((p) => p.r === r && p.c === c);
+      // no straight jump (beyond would be out of bounds)
+      expect(has(-1 as unknown as number, 4)).toBe(false);
+      // diagonals allowed
+      expect(has(0, 3)).toBe(true);
+      expect(has(0, 5)).toBe(true);
+      // other orth moves still allowed
+      expect(has(2, 4)).toBe(true);
+      expect(has(1, 3)).toBe(true);
+      expect(has(1, 5)).toBe(true);
+    });
   });
 });

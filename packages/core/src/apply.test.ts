@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { applyMove, canApplyMove, createInitialState, legalMoves } from './index';
+import { applyMove, canApplyMove, createInitialState, legalMoves, isTerminal } from './index';
 import { edgesForWall } from './rules';
 
 describe('applyMove end-to-end', () => {
@@ -76,5 +76,30 @@ describe('applyMove end-to-end', () => {
     expect(s2.history[s2.history.length - 1]).toEqual(pawn);
     // original unchanged
     expect(s.turn).toBe('P1');
+  });
+
+  it('rejects further moves after terminal with already_terminal code', () => {
+    let s = createInitialState();
+    // Drive P1 to victory quickly (down moves); P2 makes minimal moves
+    for (let i = 0; i < 20 && !isTerminal(s); i++) {
+      if (s.turn === 'P1') {
+        const startR = s.pawns.P1.r;
+        const mv = legalMoves(s).find((m) => m.type === 'PawnMove' && m.to.r > startR);
+        if (!mv) break;
+        const r = applyMove(s, mv);
+        if (r.ok) s = r.value;
+      } else {
+        const mv2 = legalMoves(s).find((m) => m.type === 'PawnMove');
+        if (!mv2) break;
+        const r2 = applyMove(s, mv2);
+        if (r2.ok) s = r2.value;
+      }
+    }
+    expect(isTerminal(s)).toBe(true);
+    // any further move should be rejected by canApplyMove
+    const anyMove = { type: 'PawnMove' as const, to: { r: 0, c: 3 } };
+    const can = canApplyMove(s, anyMove);
+    expect(can.ok).toBe(false);
+    if (!can.ok) expect(can.code).toBe('already_terminal');
   });
 });
