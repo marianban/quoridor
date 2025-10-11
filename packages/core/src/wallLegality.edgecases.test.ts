@@ -59,4 +59,30 @@ describe('wall legality edge cases', () => {
     const segs = edgesForWall({ r: 7, c: 7, o: 'H' });
     for (const e of segs) expect(s1.blockedEdges).toContain(e);
   });
+
+  it('rejects wall that would remove the last path by closing the only gap', () => {
+    // Create a horizontal barrier between rows 4 and 5 by blocking vertical edges (4,c)-(5,c) for all c except c=4
+    let s = createInitialState();
+    const barrier: string[] = [];
+    for (let c = 0; c <= 8; c++) {
+      if (c === 4 || c === 5) continue; // leave two adjacent gaps at columns 4 and 5
+      barrier.push(`4,${c}|5,${c}`);
+    }
+    s = { ...s, blockedEdges: barrier };
+    // Attempt to place a vertical wall at (4,4) which blocks (4,4)-(5,4) and (4,5)-(5,5), closing the gap
+    const attempt = canApplyMove(s, { type: 'WallPlacement', anchor: { r: 4, c: 4 }, o: 'V' });
+    expect(attempt.ok).toBe(false);
+    if (!attempt.ok) expect(attempt.code).toBe('no_path_after_placement');
+  });
+
+  it('disallows perpendicular crossing at corner anchor (7,7)', () => {
+    const s = createInitialState();
+    const r1 = applyMove(s, { type: 'WallPlacement', anchor: { r: 7, c: 7 }, o: 'H' });
+    expect(r1.ok).toBe(true);
+    if (!r1.ok) return;
+    const s1 = r1.value;
+    const cross = canApplyMove(s1, { type: 'WallPlacement', anchor: { r: 7, c: 7 }, o: 'V' });
+    expect(cross.ok).toBe(false);
+    if (!cross.ok) expect(cross.code).toBe('wall_cross');
+  });
 });
