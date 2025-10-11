@@ -1,0 +1,16 @@
+{
+  "name": "quoridor-monorepo",
+  "private": true,
+  "version": "0.0.0",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run -w @quoridor/core build",
+    "test": "npm run -w @quoridor/core test",
+    "typecheck": "npm run -w @quoridor/core typecheck"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
