@@ -105,7 +105,7 @@
 - Scenario tests from published Quoridor examples.
 - Snapshot tests for legalMoves on canonical states.
 - E2E smoke tests for adapters (CLI; Web via Playwright later).
- 
+
 
 ## Tooling (selected)
 
@@ -144,7 +144,7 @@
 - CI: none initially.
 - Package manager: npm workspaces.
 
- 
+
 
 ---
 See also: docs/specs and docs/technical for deeper details.
