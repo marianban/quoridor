@@ -4,11 +4,26 @@ import { coordToId } from '../../utils/coords';
 import { useMemo } from 'react';
 import './Board.css';
 
-type CellProps = { r: number; c: number; style: React.CSSProperties; highlighted?: boolean };
+type CellProps = {
+  r: number;
+  c: number;
+  style: React.CSSProperties;
+  highlighted?: boolean;
+  onClick?: () => void;
+};
 function Cell(props: CellProps) {
-  const { r, c, style, highlighted } = props;
+  const { r, c, style, highlighted, onClick } = props;
   const cls = highlighted ? 'cell cell--highlight' : 'cell';
-  return <div className={cls} role="gridcell" data-r={r} data-c={c} style={style} />;
+  return (
+    <div
+      className={cls}
+      role="gridcell"
+      data-r={r}
+      data-c={c}
+      style={style}
+      onClick={onClick}
+    />
+  );
 }
 
 type LaneProps = { r: number; c: number; style: React.CSSProperties };
@@ -72,19 +87,26 @@ export function Board(props: {
   return (
     <div className="board" role="grid" aria-label="Quoridor board">
       <div className="board__grid">
-        {items.map((it) =>
-          it.kind === 'cell' ? (
-            <Cell
-              key={it.key}
-              r={it.r}
-              c={it.c}
-              style={it.style}
-              highlighted={highlightSet.has(coordToId(it.r, it.c))}
-            />
-          ) : (
-            <Lane key={it.key} r={it.r} c={it.c} style={it.style} />
-          ),
-        )}
+        {items.map((it) => {
+          if (it.kind === 'cell') {
+            const isHighlighted = highlightSet.has(coordToId(it.r, it.c));
+            return (
+              <Cell
+                key={it.key}
+                r={it.r}
+                c={it.c}
+                style={it.style}
+                highlighted={isHighlighted}
+                onClick={
+                  isHighlighted
+                    ? () => props.onApplyMove({ type: 'PawnMove', to: { r: it.r, c: it.c } })
+                    : undefined
+                }
+              />
+            );
+          }
+          return <Lane key={it.key} r={it.r} c={it.c} style={it.style} />;
+        })}
       </div>
     </div>
   );

@@ -24,6 +24,7 @@
 }
 .cell--highlight {
   background: #efefef;
+  cursor: pointer;
 }
 
 /* Lanes for walls and intersections */
