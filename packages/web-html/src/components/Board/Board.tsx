@@ -1,5 +1,6 @@
 import type { GameState, Move } from '@quoridor/core';
 import { legalMoves } from '@quoridor/core';
+import { coordId, coordToId } from '../../utils/coords';
 import { useMemo } from 'react';
 import './Board.css';
 
@@ -44,7 +45,7 @@ export function Board(props: {
     const lm = legalMoves(props.state);
     const set = new Set<string>();
     for (const m of lm) {
-      if (m.type === 'PawnMove') set.add(`${m.to.r}-${m.to.c}`);
+      if (m.type === 'PawnMove') set.add(coordToId(m.to));
     }
     return set;
   }, [props.mode, props.state]);
@@ -78,7 +79,7 @@ export function Board(props: {
               r={it.r}
               c={it.c}
               style={it.style}
-              highlighted={highlightSet.has(`${it.r}-${it.c}`)}
+              highlighted={highlightSet.has(coordId(it.r, it.c))}
             />
           ) : (
             <Lane key={it.key} gr={it.gr} gc={it.gc} style={it.style} />
