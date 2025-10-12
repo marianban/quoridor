@@ -7,6 +7,22 @@ function Cell(props: CellProps) {
   return <div className="cell" role="gridcell" data-r={r} data-c={c} style={style} />;
 }
 
+type LaneProps = { gr: number; gc: number; style: React.CSSProperties };
+function Lane(props: LaneProps) {
+  const { gr, gc, style } = props;
+  const isIntersection = gr % 2 === 1 && gc % 2 === 1;
+  const isHLane = gr % 2 === 1 && gc % 2 === 0;
+  const isVLane = gr % 2 === 0 && gc % 2 === 1;
+  const cls = isIntersection
+    ? 'lane lane--x'
+    : isHLane
+      ? 'lane lane--h'
+      : isVLane
+        ? 'lane lane--v'
+        : 'lane';
+  return <div className={cls} aria-hidden="true" style={style} />;
+}
+
 export function Board(props: {
   state: GameState;
   mode: 'move' | 'wall';
@@ -25,17 +41,7 @@ export function Board(props: {
         const c = gc / 2;
         return <Cell key={`cell-${r}-${c}`} r={r} c={c} style={style} />;
       }
-      const isIntersection = gr % 2 === 1 && gc % 2 === 1;
-      const isHLane = gr % 2 === 1 && gc % 2 === 0;
-      const isVLane = gr % 2 === 0 && gc % 2 === 1;
-      const cls = isIntersection
-        ? 'lane lane--x'
-        : isHLane
-          ? 'lane lane--h'
-          : isVLane
-            ? 'lane lane--v'
-            : 'lane';
-      return <div key={`lane-${gr}-${gc}`} className={cls} aria-hidden="true" style={style} />;
+      return <Lane key={`lane-${gr}-${gc}`} gr={gr} gc={gc} style={style} />;
     }),
   );
 
