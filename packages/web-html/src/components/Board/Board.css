@@ -27,6 +27,20 @@
   cursor: pointer;
 }
 
+/* Pawn visuals */
+.pawn {
+  width: 70%;
+  height: 70%;
+  border-radius: 50%;
+  margin: auto;
+}
+.pawn--p1 {
+  background: #1976d2; /* blue */
+}
+.pawn--p2 {
+  background: #d32f2f; /* red */
+}
+
 /* Lanes for walls and intersections */
 .lane {
   background: #fafafa;

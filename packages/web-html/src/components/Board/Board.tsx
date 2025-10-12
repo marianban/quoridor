@@ -10,12 +10,17 @@ type CellProps = {
   style: React.CSSProperties;
   highlighted?: boolean;
   onClick?: () => void;
+  pawn?: 'P1' | 'P2';
 };
 function Cell(props: CellProps) {
-  const { r, c, style, highlighted, onClick } = props;
+  const { r, c, style, highlighted, onClick, pawn } = props;
   const cls = highlighted ? 'cell cell--highlight' : 'cell';
   return (
-    <div className={cls} role="gridcell" data-r={r} data-c={c} style={style} onClick={onClick} />
+    <div className={cls} role="gridcell" data-r={r} data-c={c} style={style} onClick={onClick}>
+      {pawn ? (
+        <div className={`pawn ${pawn === 'P1' ? 'pawn--p1' : 'pawn--p2'}`} data-pawn={pawn} />
+      ) : null}
+    </div>
   );
 }
 
@@ -83,6 +88,11 @@ export function Board(props: {
         {items.map((it) => {
           if (it.kind === 'cell') {
             const isHighlighted = highlightSet.has(coordToId(it.r, it.c));
+            let pawn: 'P1' | 'P2' | undefined;
+            if (props.state.pawns.P1.r === it.r && props.state.pawns.P1.c === it.c) pawn = 'P1';
+            else if (props.state.pawns.P2.r === it.r && props.state.pawns.P2.c === it.c)
+              pawn = 'P2';
+
             return (
               <Cell
                 key={it.key}
@@ -90,6 +100,7 @@ export function Board(props: {
                 c={it.c}
                 style={it.style}
                 highlighted={isHighlighted}
+                pawn={pawn}
                 onClick={
                   isHighlighted
                     ? () => props.onApplyMove({ type: 'PawnMove', to: { r: it.r, c: it.c } })
