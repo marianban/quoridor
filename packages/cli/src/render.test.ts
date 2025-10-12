@@ -27,46 +27,47 @@ describe('renderBoardState', () => {
   });
 
   it('renders walls as separators', () => {
-    // Pick a guaranteed-legal wall from legalMoves and verify ASCII by inspecting blockedEdges
+    // Place one H and one V wall and verify ASCII directly.
     let g = Game.initial();
-    const moves = legalMoves(g.state);
-    const wall = moves.find(
-      (m: Move): m is Extract<Move, { type: 'WallPlacement' }> => m.type === 'WallPlacement',
+    // Ensure legal placements by selecting from legalMoves
+    const ms = legalMoves(g.state);
+    const h = ms.find(
+      (m): m is Extract<Move, { type: 'WallPlacement' }> => m.type === 'WallPlacement' && m.o === 'H',
     );
-    expect(wall).toBeDefined();
-    if (!wall) throw new Error('No wall move found');
-    const res = g.applyMove(wall);
-    expect(res.ok).toBe(true);
-    if (res.ok) g = res.value;
+    const v = ms.find(
+      (m): m is Extract<Move, { type: 'WallPlacement' }> => m.type === 'WallPlacement' && m.o === 'V',
+    );
+    if (!h || !v) throw new Error('No H/V wall moves found');
+    const r1 = g.applyMove(h);
+    expect(r1.ok).toBe(true);
+    if (r1.ok) g = r1.value;
+    // recompute a legal V after placing H to avoid crossing
+    const ms2 = legalMoves(g.state);
+    const v2 = ms2.find(
+      (m): m is Extract<Move, { type: 'WallPlacement' }> => m.type === 'WallPlacement' && m.o === 'V',
+    );
+    if (!v2) throw new Error('No V wall move found after placing H');
+    const r2 = g.applyMove(v2);
+    expect(r2.ok).toBe(true);
+    if (r2.ok) g = r2.value;
 
     const s = renderBoardState(g.state);
     const lines = s.split('\n');
     const si = (c: number) => c * 3;
-
-    // For each blocked edge, check the ASCII matches
-    for (const e of g.state.blockedEdges) {
-      const [a, b] = e.split('|');
-      const [r1s, c1s] = a.split(',');
-      const [r2s, c2s] = b.split(',');
-      const r1 = Number(r1s),
-        c1 = Number(c1s),
-        r2 = Number(r2s),
-        c2 = Number(c2s);
-      if (r1 === r2) {
-        // horizontal adjacency (between cells in same row): expect '|'
-        const r = r1,
-          c = Math.min(c1, c2);
-        const cellRow = lines[r * 2];
-        const barIdx = si(c) + 2; // between c and c+1 after 2-char token
-        expect(cellRow[barIdx]).toBe('|');
-      } else if (c1 === c2) {
-        // vertical adjacency (between rows): expect '-'
-        const c = c1,
-          r = Math.min(r1, r2);
-        const wallRow = lines[r * 2 + 1];
-        expect(wallRow.slice(si(c), si(c) + 2)).toBe('--');
-      }
-    }
+    const hr = h.anchor.r; // under this row
+    const hc = h.anchor.c; // at columns c and c+1
+  const vr = v2.anchor.r; // bars on rows r and r+1
+  const vc = v2.anchor.c; // between vc and vc+1
+    // Check horizontal '-' for H
+    const wallRow = lines[hr * 2 + 1];
+    expect(wallRow.slice(si(hc), si(hc) + 2)).toBe('--');
+    expect(wallRow.slice(si(hc + 1), si(hc + 1) + 2)).toBe('--');
+    // Check vertical '|' for V on both adjacent cell rows
+    const cellRowTop = lines[vr * 2];
+    const cellRowBottom = lines[(vr + 1) * 2];
+    const barIdx = si(vc) + 2;
+    expect(cellRowTop[barIdx]).toBe('|');
+    expect(cellRowBottom[barIdx]).toBe('|');
   });
 
   it('buildBlockedMaps maps walls correctly', () => {
@@ -75,15 +76,15 @@ describe('renderBoardState', () => {
     const state = {
       ...g.state,
       placedWalls: [
-        { r: 0, c: 0, o: 'H' }, // should set hBlock[0][0] and hBlock[1][0]
-        { r: 1, c: 2, o: 'V' }, // should set vBlock[1][2] and vBlock[1][3]
+        { r: 0, c: 0, o: 'H' }, // should set vBlock[0][0] and vBlock[0][1]
+        { r: 1, c: 2, o: 'V' }, // should set hBlock[1][2] and hBlock[2][2]
       ],
     } as typeof g.state;
     const { hBlock, vBlock } = buildBlockedMaps(state);
-    expect(hBlock[0][0]).toBe(true);
-    expect(hBlock[1][0]).toBe(true);
-    expect(vBlock[1][2]).toBe(true);
-    expect(vBlock[1][3]).toBe(true);
+    expect(vBlock[0][0]).toBe(true);
+    expect(vBlock[0][1]).toBe(true);
+    expect(hBlock[1][2]).toBe(true);
+    expect(hBlock[2][2]).toBe(true);
   });
 
   it('computePawnHighlights returns legal destinations', () => {
@@ -111,10 +112,10 @@ describe('renderBoardState', () => {
     const state = {
       ...g.state,
       placedWalls: [
-        { r: 0, c: 0, o: 'V' }, // '-' at c=0
-        { r: 0, c: 4, o: 'V' }, // '-' at c=4
-        { r: 0, c: 7, o: 'V' }, // '-' at c=7
-        { r: 0, c: 0, o: 'H' }, // '|' at c=0 on rows 0 and 1
+        { r: 0, c: 0, o: 'V' }, // '|' at c=0 on rows 0 and 1
+        { r: 0, c: 4, o: 'V' }, // '|' at c=4 on rows 0 and 1
+        { r: 0, c: 7, o: 'V' }, // '|' at c=7 on rows 0 and 1
+        { r: 0, c: 0, o: 'H' }, // '-' under row 0 at c=0 and c=1
       ],
     } as typeof g.state;
     const { hBlock, vBlock } = buildBlockedMaps(state);
@@ -122,14 +123,15 @@ describe('renderBoardState', () => {
     const row0 = renderCellLine(g.state, hs, hBlock[0], 0);
     const wall0 = renderWallLine(vBlock[0]);
     const si = (c: number) => c * 3;
-    // Expect '|' from the H wall at c=0 between cells (0|1) -> index 2
+    // Expect '|' from the V walls at c=0,4,7 between cells (0|1)
     expect(row0[si(0) + 2]).toBe('|');
-    // '|' at c=4 and c=7 should not be set on row0 (those were V walls -> '-')
-    expect(row0[si(4) + 2]).toBe(' ');
-    expect(row0[si(7) + 2]).toBe(' ');
-    // Expect '--' at columns 0,4,7 under row 0
+    expect(row0[si(4) + 2]).toBe('|');
+    expect(row0[si(7) + 2]).toBe('|');
+    // Expect '--' under row 0 for H wall at columns 0 and 1 only
     expect(wall0.slice(si(0), si(0) + 2)).toBe('--');
-    expect(wall0.slice(si(4), si(4) + 2)).toBe('--');
-    expect(wall0.slice(si(7), si(7) + 2)).toBe('--');
+    expect(wall0.slice(si(1), si(1) + 2)).toBe('--');
+    // No '-' at 4 or 7 without H walls there
+    expect(wall0.slice(si(4), si(4) + 2)).toBe('  ');
+    expect(wall0.slice(si(7), si(7) + 2)).toBe('  ');
   });
 });

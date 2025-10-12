@@ -12,16 +12,16 @@ export function buildBlockedMaps(state: GameState): { hBlock: boolean[][]; vBloc
   for (const w of state.placedWalls) {
     const { r, c, o } = w;
     if (o === 'H') {
-      // Horizontal wall blocks horizontal adjacency (rendered as '|') on rows r and r+1 at column c
-      if (r >= 0 && r <= 7 && c >= 0 && c <= 7) {
-        hBlock[r][c] = true;
-        hBlock[r + 1][c] = true;
-      }
-    } else {
-      // Vertical wall blocks vertical adjacency (rendered as '-') on row r at columns c and c+1
+      // Horizontal wall draws '-' across the gap between row r and r+1 at columns c and c+1
       if (r >= 0 && r <= 7 && c >= 0 && c <= 7) {
         vBlock[r][c] = true;
         vBlock[r][c + 1] = true;
+      }
+    } else {
+      // Vertical wall draws '|' between cells on rows r and r+1 at column c
+      if (r >= 0 && r <= 7 && c >= 0 && c <= 7) {
+        hBlock[r][c] = true;
+        hBlock[r + 1][c] = true;
       }
     }
   }

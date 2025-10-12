@@ -19,10 +19,17 @@ function parse(input: string): Cmd | null {
   if (t === 'demo') return { kind: 'demo' };
   const parts = t.split(/\s+/);
   const cmd = parts[0].toLowerCase();
-  if (cmd === 'move' && parts[1]) return { kind: 'move', to: parts[1] };
-  if (cmd === 'wall' && parts[1] && parts[2]) {
+  // Short aliases: m rc (e.g., m 34) and w rc O (e.g., w 34 H)
+  if ((cmd === 'move' || cmd === 'm') && parts[1]) {
+    const to = parts[1].includes(',') ? parts[1] : parts[1].replace(/^(\d)(\d)$/,'$1,$2');
+    return { kind: 'move', to };
+  }
+  if ((cmd === 'wall' || cmd === 'w') && parts[1] && parts[2]) {
     const o = parts[2].toUpperCase();
-    if (o === 'H' || o === 'V') return { kind: 'wall', anchor: parts[1], o };
+    if (o === 'H' || o === 'V') {
+      const anchor = parts[1].includes(',') ? parts[1] : parts[1].replace(/^(\d)(\d)$/,'$1,$2');
+      return { kind: 'wall', anchor, o };
+    }
   }
   return null;
 }
@@ -44,8 +51,8 @@ function parseCoord(s: string): { r: number; c: number } | null {
 function help(): string {
   return [
     'Commands:',
-    '  move r,c         # move pawn to coordinate (e.g., move 1,4)',
-    '  wall r,c O       # place wall at anchor r,c with orientation O in {H,V} (e.g., wall 3,3 H)',
+    '  m rc | move r,c  # move pawn (e.g., m 34 or move 3,4)',
+    '  w rc O | wall r,c O  # place wall (e.g., w 34 H or wall 3,4 H)',
     '  demo             # reset to a curated demo position with a few walls',
     '  help             # show this help',
     '  quit             # exit',
