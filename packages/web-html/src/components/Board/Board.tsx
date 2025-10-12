@@ -15,14 +15,7 @@ function Cell(props: CellProps) {
   const { r, c, style, highlighted, onClick } = props;
   const cls = highlighted ? 'cell cell--highlight' : 'cell';
   return (
-    <div
-      className={cls}
-      role="gridcell"
-      data-r={r}
-      data-c={c}
-      style={style}
-      onClick={onClick}
-    />
+    <div className={cls} role="gridcell" data-r={r} data-c={c} style={style} onClick={onClick} />
   );
 }
 
