@@ -32,10 +32,12 @@ describe('renderBoardState', () => {
     // Ensure legal placements by selecting from legalMoves
     const ms = legalMoves(g.state);
     const h = ms.find(
-      (m): m is Extract<Move, { type: 'WallPlacement' }> => m.type === 'WallPlacement' && m.o === 'H',
+      (m): m is Extract<Move, { type: 'WallPlacement' }> =>
+        m.type === 'WallPlacement' && m.o === 'H',
     );
     const v = ms.find(
-      (m): m is Extract<Move, { type: 'WallPlacement' }> => m.type === 'WallPlacement' && m.o === 'V',
+      (m): m is Extract<Move, { type: 'WallPlacement' }> =>
+        m.type === 'WallPlacement' && m.o === 'V',
     );
     if (!h || !v) throw new Error('No H/V wall moves found');
     const r1 = g.applyMove(h);
@@ -44,7 +46,8 @@ describe('renderBoardState', () => {
     // recompute a legal V after placing H to avoid crossing
     const ms2 = legalMoves(g.state);
     const v2 = ms2.find(
-      (m): m is Extract<Move, { type: 'WallPlacement' }> => m.type === 'WallPlacement' && m.o === 'V',
+      (m): m is Extract<Move, { type: 'WallPlacement' }> =>
+        m.type === 'WallPlacement' && m.o === 'V',
     );
     if (!v2) throw new Error('No V wall move found after placing H');
     const r2 = g.applyMove(v2);
@@ -56,8 +59,8 @@ describe('renderBoardState', () => {
     const si = (c: number) => c * 3;
     const hr = h.anchor.r; // under this row
     const hc = h.anchor.c; // at columns c and c+1
-  const vr = v2.anchor.r; // bars on rows r and r+1
-  const vc = v2.anchor.c; // between vc and vc+1
+    const vr = v2.anchor.r; // bars on rows r and r+1
+    const vc = v2.anchor.c; // between vc and vc+1
     // Check horizontal '-' for H
     const wallRow = lines[hr * 2 + 1];
     expect(wallRow.slice(si(hc), si(hc) + 2)).toBe('--');

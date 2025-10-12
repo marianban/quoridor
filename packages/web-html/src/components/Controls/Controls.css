@@ -1,0 +1,28 @@
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.controls__group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.controls__label {
+  font-weight: 600;
+}
+
+.controls__btn {
+  padding: 0.25rem 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.controls__btn--active {
+  background: #222;
+  color: #fff;
+}

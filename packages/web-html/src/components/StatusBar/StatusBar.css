@@ -1,0 +1,21 @@
+.status {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.status__line {
+  font-size: 0.9rem;
+}
+
+.status__value {
+  font-weight: 600;
+}
+
+.status__error {
+  color: #b00020;
+  background: #fde7eb;
+  border: 1px solid #f5c2c7;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}

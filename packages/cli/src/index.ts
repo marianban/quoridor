@@ -21,13 +21,13 @@ function parse(input: string): Cmd | null {
   const cmd = parts[0].toLowerCase();
   // Short aliases: m rc (e.g., m 34) and w rc O (e.g., w 34 H)
   if ((cmd === 'move' || cmd === 'm') && parts[1]) {
-    const to = parts[1].includes(',') ? parts[1] : parts[1].replace(/^(\d)(\d)$/,'$1,$2');
+    const to = parts[1].includes(',') ? parts[1] : parts[1].replace(/^(\d)(\d)$/, '$1,$2');
     return { kind: 'move', to };
   }
   if ((cmd === 'wall' || cmd === 'w') && parts[1] && parts[2]) {
     const o = parts[2].toUpperCase();
     if (o === 'H' || o === 'V') {
-      const anchor = parts[1].includes(',') ? parts[1] : parts[1].replace(/^(\d)(\d)$/,'$1,$2');
+      const anchor = parts[1].includes(',') ? parts[1] : parts[1].replace(/^(\d)(\d)$/, '$1,$2');
       return { kind: 'wall', anchor, o };
     }
   }
