@@ -1,6 +1,12 @@
 import type { GameState, Move } from '@quoridor/core';
 import './Board.css';
 
+type CellProps = { r: number; c: number; style: React.CSSProperties };
+function Cell(props: CellProps) {
+  const { r, c, style } = props;
+  return <div className="cell" role="gridcell" data-r={r} data-c={c} style={style} />;
+}
+
 export function Board(props: {
   state: GameState;
   mode: 'move' | 'wall';
@@ -8,46 +14,34 @@ export function Board(props: {
   onApplyMove: (m: Move) => void;
 }) {
   void props;
-  // Render a 17x17 grid: cells at even-even indices (0-based), lanes elsewhere
-  const gridChildren: JSX.Element[] = [];
-  for (let gr = 0; gr < 17; gr++) {
-    for (let gc = 0; gc < 17; gc++) {
-      const isCell = gr % 2 === 0 && gc % 2 === 0;
+  // Pre-build array indices for 17x17 grid
+  const idx = Array.from({ length: 17 }, (_, i) => i);
+  const children = idx.flatMap((gr) =>
+    idx.map((gc) => {
       const style = { gridRow: gr + 1, gridColumn: gc + 1 } as const;
+      const isCell = gr % 2 === 0 && gc % 2 === 0;
       if (isCell) {
         const r = gr / 2;
         const c = gc / 2;
-        gridChildren.push(
-          <div
-            key={`cell-${r}-${c}`}
-            className="cell"
-            role="gridcell"
-            data-r={r}
-            data-c={c}
-            style={style}
-          />,
-        );
-      } else {
-        const isIntersection = gr % 2 === 1 && gc % 2 === 1;
-        const isHLane = gr % 2 === 1 && gc % 2 === 0;
-        const isVLane = gr % 2 === 0 && gc % 2 === 1;
-        const cls = isIntersection
-          ? 'lane lane--x'
-          : isHLane
-            ? 'lane lane--h'
-            : isVLane
-              ? 'lane lane--v'
-              : 'lane';
-        gridChildren.push(
-          <div key={`lane-${gr}-${gc}`} className={cls} aria-hidden="true" style={style} />,
-        );
+        return <Cell key={`cell-${r}-${c}`} r={r} c={c} style={style} />;
       }
-    }
-  }
+      const isIntersection = gr % 2 === 1 && gc % 2 === 1;
+      const isHLane = gr % 2 === 1 && gc % 2 === 0;
+      const isVLane = gr % 2 === 0 && gc % 2 === 1;
+      const cls = isIntersection
+        ? 'lane lane--x'
+        : isHLane
+          ? 'lane lane--h'
+          : isVLane
+            ? 'lane lane--v'
+            : 'lane';
+      return <div key={`lane-${gr}-${gc}`} className={cls} aria-hidden="true" style={style} />;
+    }),
+  );
 
   return (
     <div className="board" role="grid" aria-label="Quoridor board">
-      <div className="board__grid">{gridChildren}</div>
+      <div className="board__grid">{children}</div>
     </div>
   );
 }
