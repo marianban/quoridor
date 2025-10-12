@@ -8,6 +8,7 @@ export function Controls(props: {
   onReset: () => void;
 }) {
   const { mode, setMode, orientation, setOrientation, onReset } = props;
+  const orientationDisabled = mode !== 'wall';
   return (
     <div className="controls">
       <div className="controls__group">
@@ -15,6 +16,7 @@ export function Controls(props: {
         <button
           type="button"
           className={`controls__btn ${mode === 'move' ? 'controls__btn--active' : ''}`}
+          title="Move (M)"
           onClick={() => setMode('move')}
         >
           Move
@@ -22,6 +24,7 @@ export function Controls(props: {
         <button
           type="button"
           className={`controls__btn ${mode === 'wall' ? 'controls__btn--active' : ''}`}
+          title="Wall (W)"
           onClick={() => setMode('wall')}
         >
           Wall
@@ -31,15 +34,27 @@ export function Controls(props: {
         <span className="controls__label">Orientation:</span>
         <button
           type="button"
-          className={`controls__btn ${orientation === 'H' ? 'controls__btn--active' : ''}`}
-          onClick={() => setOrientation('H')}
+          className={`controls__btn ${orientation === 'H' ? 'controls__btn--active' : ''} ${orientationDisabled ? 'controls__btn--disabled' : ''}`}
+          title="Horizontal (H)"
+          aria-disabled={orientationDisabled}
+          tabIndex={orientationDisabled ? -1 : 0}
+          onClick={() => {
+            if (orientationDisabled) return;
+            setOrientation('H');
+          }}
         >
           H
         </button>
         <button
           type="button"
-          className={`controls__btn ${orientation === 'V' ? 'controls__btn--active' : ''}`}
-          onClick={() => setOrientation('V')}
+          className={`controls__btn ${orientation === 'V' ? 'controls__btn--active' : ''} ${orientationDisabled ? 'controls__btn--disabled' : ''}`}
+          title="Vertical (V)"
+          aria-disabled={orientationDisabled}
+          tabIndex={orientationDisabled ? -1 : 0}
+          onClick={() => {
+            if (orientationDisabled) return;
+            setOrientation('V');
+          }}
         >
           V
         </button>

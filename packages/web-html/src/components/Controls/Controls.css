@@ -26,3 +26,8 @@
   background: #222;
   color: #fff;
 }
+
+.controls__btn--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
