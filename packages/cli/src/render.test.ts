@@ -16,14 +16,14 @@ describe('renderBoardState', () => {
     const s = renderBoardState(g.state);
     // P1 at (0,4), legal moves include (1,4) and (0,3) and (0,5)
     const lines = s.split('\n');
-    const idx = (c: number) => c * 2;
-    expect(lines[0][idx(4)]).toBe('1');
-    // right neighbor should be '*'
-    expect(lines[0][idx(5)]).toBe('*');
-    // left neighbor should be '*'
-    expect(lines[0][idx(3)]).toBe('*');
+    const si = (c: number) => c * 3; // start index per cell token (2 chars + 1 sep)
+    expect(lines[0].slice(si(4), si(4) + 2)).toBe('1 ');
+    // right neighbor should be '**'
+    expect(lines[0].slice(si(5), si(5) + 2)).toBe('**');
+    // left neighbor should be '**'
+    expect(lines[0].slice(si(3), si(3) + 2)).toBe('**');
     // below on next cell row (lines[2]) same column index
-    expect(lines[2][idx(4)]).toBe('*');
+    expect(lines[2].slice(si(4), si(4) + 2)).toBe('**');
   });
 
   it('renders walls as separators', () => {
@@ -41,7 +41,7 @@ describe('renderBoardState', () => {
 
     const s = renderBoardState(g.state);
     const lines = s.split('\n');
-    const idx = (c: number) => c * 2;
+    const si = (c: number) => c * 3;
 
     // For each blocked edge, check the ASCII matches
     for (const e of g.state.blockedEdges) {
@@ -57,14 +57,14 @@ describe('renderBoardState', () => {
         const r = r1,
           c = Math.min(c1, c2);
         const cellRow = lines[r * 2];
-        const barIdx = idx(c) + 1; // between c and c+1
+        const barIdx = si(c) + 2; // between c and c+1 after 2-char token
         expect(cellRow[barIdx]).toBe('|');
       } else if (c1 === c2) {
         // vertical adjacency (between rows): expect '-'
         const c = c1,
           r = Math.min(r1, r2);
         const wallRow = lines[r * 2 + 1];
-        expect(wallRow[idx(c)]).toBe('-');
+        expect(wallRow.slice(si(c), si(c) + 2)).toBe('--');
       }
     }
   });
@@ -98,12 +98,12 @@ describe('renderBoardState', () => {
     const g = Game.initial();
     const hs = computePawnHighlights(g.state);
     // P1 and P2
-    expect(cellCharAt(g.state, hs, 0, 4)).toBe('1');
-    expect(cellCharAt(g.state, hs, 8, 4)).toBe('2');
+    expect(cellCharAt(g.state, hs, 0, 4)).toBe('1 ');
+    expect(cellCharAt(g.state, hs, 8, 4)).toBe('2 ');
     // A highlighted move
-    expect(cellCharAt(g.state, hs, 0, 5)).toBe('*');
+    expect(cellCharAt(g.state, hs, 0, 5)).toBe('**');
     // Non-highlight empty
-    expect(cellCharAt(g.state, hs, 0, 0)).toBe('.');
+    expect(cellCharAt(g.state, hs, 0, 0)).toBe('00');
   });
 
   it('renderCellLine and renderWallLine compose correctly', () => {
@@ -121,14 +121,15 @@ describe('renderBoardState', () => {
     const hs = computePawnHighlights(g.state);
     const row0 = renderCellLine(g.state, hs, hBlock[0], 0);
     const wall0 = renderWallLine(vBlock[0]);
-    // Expect '|' from the H wall at c=0 between cells (0|1) -> index 1
-    expect(row0[1]).toBe('|');
+    const si = (c: number) => c * 3;
+    // Expect '|' from the H wall at c=0 between cells (0|1) -> index 2
+    expect(row0[si(0) + 2]).toBe('|');
     // '|' at c=4 and c=7 should not be set on row0 (those were V walls -> '-')
-    expect(row0[9]).toBe(' ');
-    expect(row0[15]).toBe(' ');
-    // Expect '-' at columns 0,4,7 under row 0 (indices 0,8,14)
-    expect(wall0[0]).toBe('-');
-    expect(wall0[8]).toBe('-');
-    expect(wall0[14]).toBe('-');
+    expect(row0[si(4) + 2]).toBe(' ');
+    expect(row0[si(7) + 2]).toBe(' ');
+    // Expect '--' at columns 0,4,7 under row 0
+    expect(wall0.slice(si(0), si(0) + 2)).toBe('--');
+    expect(wall0.slice(si(4), si(4) + 2)).toBe('--');
+    expect(wall0.slice(si(7), si(7) + 2)).toBe('--');
   });
 });

@@ -44,9 +44,12 @@ export function cellCharAt(
   r: number,
   c: number,
 ): string {
-  if (state.pawns.P1.r === r && state.pawns.P1.c === c) return '1';
-  if (state.pawns.P2.r === r && state.pawns.P2.c === c) return '2';
-  return highlight.has(keyOf(r, c)) ? '*' : '.';
+  // Fixed-width (2) cell tokens to keep columns aligned
+  if (state.pawns.P1.r === r && state.pawns.P1.c === c) return '1 ';
+  if (state.pawns.P2.r === r && state.pawns.P2.c === c) return '2 ';
+  if (highlight.has(keyOf(r, c))) return '**';
+  // Show easy-to-pick coordinates (rc), e.g., 34 for r=3,c=4
+  return `${r}${c}`;
 }
 
 export function renderCellLine(
@@ -57,8 +60,8 @@ export function renderCellLine(
 ): string {
   let cellLine = '';
   for (let c = 0; c < 9; c++) {
-    cellLine += cellCharAt(state, highlight, r, c);
-    if (c < 8) cellLine += hRow[c] ? '|' : ' ';
+    cellLine += cellCharAt(state, highlight, r, c); // two chars per cell
+    if (c < 8) cellLine += hRow[c] ? '|' : ' '; // one-char separator between cells
   }
   return cellLine;
 }
@@ -66,7 +69,8 @@ export function renderCellLine(
 export function renderWallLine(vRow: ReadonlyArray<boolean>): string {
   let wallLine = '';
   for (let c = 0; c < 9; c++) {
-    wallLine += vRow[c] ? '-' : ' ';
+    // Two chars to align under the two-char cell tokens above
+    wallLine += vRow[c] ? '--' : '  ';
     if (c < 8) wallLine += ' ';
   }
   return wallLine;
