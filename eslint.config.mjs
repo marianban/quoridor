@@ -13,11 +13,14 @@ export default defineConfig([
       globals: {
         ...globals.node,
       },
+      parserOptions: {
+        projectService: true,
+      },
     },
     rules: {
       '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
     },
-    extends: [tseslint.configs.recommended],
+    extends: [tseslint.configs.recommendedTypeChecked],
   },
   {
     basePath: 'packages/web-html',
