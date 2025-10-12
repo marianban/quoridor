@@ -1,4 +1,5 @@
 import type { GameState, Move } from '@quoridor/core';
+import { useMemo } from 'react';
 import './Board.css';
 
 type CellProps = { r: number; c: number; style: React.CSSProperties };
@@ -23,6 +24,10 @@ function Lane(props: LaneProps) {
   return <div className={cls} aria-hidden="true" style={style} />;
 }
 
+type GridItem =
+  | { kind: 'cell'; key: string; r: number; c: number; style: React.CSSProperties }
+  | { kind: 'lane'; key: string; gr: number; gc: number; style: React.CSSProperties };
+
 export function Board(props: {
   state: GameState;
   mode: 'move' | 'wall';
@@ -30,24 +35,37 @@ export function Board(props: {
   onApplyMove: (m: Move) => void;
 }) {
   void props;
-  // Pre-build array indices for 17x17 grid
-  const idx = Array.from({ length: 17 }, (_, i) => i);
-  const children = idx.flatMap((gr) =>
-    idx.map((gc) => {
-      const style = { gridRow: gr + 1, gridColumn: gc + 1 } as const;
-      const isCell = gr % 2 === 0 && gc % 2 === 0;
-      if (isCell) {
-        const r = gr / 2;
-        const c = gc / 2;
-        return <Cell key={`cell-${r}-${c}`} r={r} c={c} style={style} />;
+
+  const items = useMemo<GridItem[]>(() => {
+    const idx = Array.from({ length: 17 }, (_, i) => i);
+    const out: GridItem[] = [];
+    for (const gr of idx) {
+      for (const gc of idx) {
+        const style = { gridRow: gr + 1, gridColumn: gc + 1 } as const;
+        const isCell = gr % 2 === 0 && gc % 2 === 0;
+        if (isCell) {
+          const r = gr / 2;
+          const c = gc / 2;
+          out.push({ kind: 'cell', key: `cell-${r}-${c}`, r, c, style });
+        } else {
+          out.push({ kind: 'lane', key: `lane-${gr}-${gc}`, gr, gc, style });
+        }
       }
-      return <Lane key={`lane-${gr}-${gc}`} gr={gr} gc={gc} style={style} />;
-    }),
-  );
+    }
+    return out;
+  }, []);
 
   return (
     <div className="board" role="grid" aria-label="Quoridor board">
-      <div className="board__grid">{children}</div>
+      <div className="board__grid">
+        {items.map((it) =>
+          it.kind === 'cell' ? (
+            <Cell key={it.key} r={it.r} c={it.c} style={it.style} />
+          ) : (
+            <Lane key={it.key} gr={it.gr} gc={it.gc} style={it.style} />
+          ),
+        )}
+      </div>
     </div>
   );
 }
