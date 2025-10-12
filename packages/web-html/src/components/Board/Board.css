@@ -22,6 +22,9 @@
   background: #fff;
   outline: 1px solid #ddd; /* thin grid lines */
 }
+.cell--highlight {
+  background: #efefef;
+}
 
 /* Lanes for walls and intersections */
 .lane {

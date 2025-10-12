@@ -1,11 +1,13 @@
 import type { GameState, Move } from '@quoridor/core';
+import { legalMoves } from '@quoridor/core';
 import { useMemo } from 'react';
 import './Board.css';
 
-type CellProps = { r: number; c: number; style: React.CSSProperties };
+type CellProps = { r: number; c: number; style: React.CSSProperties; highlighted?: boolean };
 function Cell(props: CellProps) {
-  const { r, c, style } = props;
-  return <div className="cell" role="gridcell" data-r={r} data-c={c} style={style} />;
+  const { r, c, style, highlighted } = props;
+  const cls = highlighted ? 'cell cell--highlight' : 'cell';
+  return <div className={cls} role="gridcell" data-r={r} data-c={c} style={style} />;
 }
 
 type LaneProps = { gr: number; gc: number; style: React.CSSProperties };
@@ -36,6 +38,17 @@ export function Board(props: {
 }) {
   void props;
 
+  // Compute highlight set for legal pawn destinations when in Move mode
+  const highlightSet = useMemo(() => {
+    if (props.mode !== 'move') return new Set<string>();
+    const lm = legalMoves(props.state);
+    const set = new Set<string>();
+    for (const m of lm) {
+      if (m.type === 'PawnMove') set.add(`${m.to.r}-${m.to.c}`);
+    }
+    return set;
+  }, [props.mode, props.state]);
+
   const items = useMemo<GridItem[]>(() => {
     const idx = Array.from({ length: 17 }, (_, i) => i);
     const out: GridItem[] = [];
@@ -60,7 +73,13 @@ export function Board(props: {
       <div className="board__grid">
         {items.map((it) =>
           it.kind === 'cell' ? (
-            <Cell key={it.key} r={it.r} c={it.c} style={it.style} />
+            <Cell
+              key={it.key}
+              r={it.r}
+              c={it.c}
+              style={it.style}
+              highlighted={highlightSet.has(`${it.r}-${it.c}`)}
+            />
           ) : (
             <Lane key={it.key} gr={it.gr} gc={it.gc} style={it.style} />
           ),
