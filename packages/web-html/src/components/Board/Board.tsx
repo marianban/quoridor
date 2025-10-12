@@ -1,6 +1,6 @@
 import type { GameState, Move } from '@quoridor/core';
 import { legalMoves } from '@quoridor/core';
-import { coordId, coordToId } from '../../utils/coords';
+import { coordToId } from '../../utils/coords';
 import { useMemo } from 'react';
 import './Board.css';
 
@@ -11,12 +11,12 @@ function Cell(props: CellProps) {
   return <div className={cls} role="gridcell" data-r={r} data-c={c} style={style} />;
 }
 
-type LaneProps = { gr: number; gc: number; style: React.CSSProperties };
+type LaneProps = { r: number; c: number; style: React.CSSProperties };
 function Lane(props: LaneProps) {
-  const { gr, gc, style } = props;
-  const isIntersection = gr % 2 === 1 && gc % 2 === 1;
-  const isHLane = gr % 2 === 1 && gc % 2 === 0;
-  const isVLane = gr % 2 === 0 && gc % 2 === 1;
+  const { r, c, style } = props;
+  const isIntersection = r % 2 === 1 && c % 2 === 1;
+  const isHLane = r % 2 === 1 && c % 2 === 0;
+  const isVLane = r % 2 === 0 && c % 2 === 1;
   const cls = isIntersection
     ? 'lane lane--x'
     : isHLane
@@ -29,7 +29,7 @@ function Lane(props: LaneProps) {
 
 type GridItem =
   | { kind: 'cell'; key: string; r: number; c: number; style: React.CSSProperties }
-  | { kind: 'lane'; key: string; gr: number; gc: number; style: React.CSSProperties };
+  | { kind: 'lane'; key: string; r: number; c: number; style: React.CSSProperties };
 
 export function Board(props: {
   state: GameState;
@@ -62,7 +62,7 @@ export function Board(props: {
           const c = gc / 2;
           out.push({ kind: 'cell', key: `cell-${r}-${c}`, r, c, style });
         } else {
-          out.push({ kind: 'lane', key: `lane-${gr}-${gc}`, gr, gc, style });
+          out.push({ kind: 'lane', key: `lane-${gr}-${gc}`, r: gr, c: gc, style });
         }
       }
     }
@@ -79,10 +79,10 @@ export function Board(props: {
               r={it.r}
               c={it.c}
               style={it.style}
-              highlighted={highlightSet.has(coordId(it.r, it.c))}
+              highlighted={highlightSet.has(coordToId(it.r, it.c))}
             />
           ) : (
-            <Lane key={it.key} gr={it.gr} gc={it.gc} style={it.style} />
+            <Lane key={it.key} r={it.r} c={it.c} style={it.style} />
           ),
         )}
       </div>
