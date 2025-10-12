@@ -7,8 +7,12 @@ function isPawnMove(m: Move): m is PawnMoveLike {
 }
 
 export function buildBlockedMaps(state: GameState): { hBlock: boolean[][]; vBlock: boolean[][] } {
-  const hBlock: boolean[][] = Array.from({ length: 9 }, () => Array(8).fill(false)); // '|' between (r,c)-(r,c+1)
-  const vBlock: boolean[][] = Array.from({ length: 8 }, () => Array(9).fill(false)); // '-' between (r,c)-(r+1,c)
+  const hBlock: boolean[][] = Array.from({ length: 9 }, () =>
+    Array.from({ length: 8 }, () => false),
+  ); // '|' between (r,c)-(r,c+1)
+  const vBlock: boolean[][] = Array.from({ length: 8 }, () =>
+    Array.from({ length: 9 }, () => false),
+  ); // '-' between (r,c)-(r+1,c)
   for (const w of state.placedWalls) {
     const { r, c, o } = w;
     if (o === 'H') {
