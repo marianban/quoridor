@@ -10,6 +10,7 @@
     "test": "npm run -w @quoridor/core test",
     "typecheck": "npm run -w @quoridor/core typecheck && npm run -w @quoridor/cli typecheck",
     "start:cli": "npm run -w @quoridor/cli start",
+    "start:html": "npm run -w @quoridor/web-html dev",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier . --write",
@@ -22,7 +23,9 @@
     "@typescript-eslint/eslint-plugin": "^8.46.0",
     "@typescript-eslint/parser": "^8.46.0",
     "eslint": "^9.37.0",
+    "eslint-plugin-react": "^7.37.5",
     "globals": "^16.4.0",
-    "prettier": "^3.6.2"
+    "prettier": "^3.6.2",
+    "typescript-eslint": "^8.46.0"
   }
 }
