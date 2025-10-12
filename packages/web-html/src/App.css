@@ -25,3 +25,10 @@
 .app__side {
   min-width: 240px;
 }
+
+.app__left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}

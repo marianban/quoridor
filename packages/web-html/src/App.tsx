@@ -77,7 +77,10 @@ export function App() {
         <h1 className="app__title">Quoridor</h1>
       </div>
       <div className="app__main">
-        <Board state={state} mode={mode} orientation={orientation} onApplyMove={onApplyMove} />
+        <div className="app__left">
+          <Board state={state} mode={mode} orientation={orientation} onApplyMove={onApplyMove} />
+          <StatusBar state={state} error={error} />
+        </div>
         <div className="app__side">
           <Controls
             mode={mode}
@@ -86,7 +89,6 @@ export function App() {
             setOrientation={setOrientation}
             onReset={onReset}
           />
-          <StatusBar state={state} error={error} />
         </div>
       </div>
     </div>
