@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Game } from '@quoridor/core';
 import { Board } from './components/Board/Board';
 import { Controls } from './components/Controls/Controls';
