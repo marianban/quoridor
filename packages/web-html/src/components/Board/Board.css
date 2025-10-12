@@ -15,3 +15,23 @@
   grid-template-rows: repeat(17, 1fr);
   gap: 0;
 }
+
+/* Cells */
+.cell {
+  background: #fff;
+  outline: 1px solid #ddd; /* thin grid lines */
+}
+
+/* Lanes for walls and intersections */
+.lane {
+  background: #fafafa;
+}
+.lane--h {
+  background: #f5f5f5;
+}
+.lane--v {
+  background: #f5f5f5;
+}
+.lane--x {
+  background: #f0f0f0;
+}
