@@ -34,12 +34,7 @@ export function App() {
         <h1 className="app__title">Quoridor</h1>
       </div>
       <div className="app__main">
-        <Board
-          state={state}
-          mode={mode}
-          orientation={orientation}
-          onApplyMove={onApplyMove}
-        />
+        <Board state={state} mode={mode} orientation={orientation} onApplyMove={onApplyMove} />
         <div className="app__side">
           <Controls
             mode={mode}
