@@ -36,8 +36,7 @@ export function Controls(props: {
           type="button"
           className={`controls__btn ${orientation === 'H' ? 'controls__btn--active' : ''} ${orientationDisabled ? 'controls__btn--disabled' : ''}`}
           title="Horizontal (H)"
-          aria-disabled={orientationDisabled}
-          tabIndex={orientationDisabled ? -1 : 0}
+          {...(orientationDisabled ? { 'aria-disabled': true, tabIndex: -1 } : {})}
           onClick={() => {
             if (orientationDisabled) return;
             setOrientation('H');
@@ -49,8 +48,7 @@ export function Controls(props: {
           type="button"
           className={`controls__btn ${orientation === 'V' ? 'controls__btn--active' : ''} ${orientationDisabled ? 'controls__btn--disabled' : ''}`}
           title="Vertical (V)"
-          aria-disabled={orientationDisabled}
-          tabIndex={orientationDisabled ? -1 : 0}
+          {...(orientationDisabled ? { 'aria-disabled': true, tabIndex: -1 } : {})}
           onClick={() => {
             if (orientationDisabled) return;
             setOrientation('V');
