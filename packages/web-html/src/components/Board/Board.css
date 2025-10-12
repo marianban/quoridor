@@ -11,8 +11,9 @@
   width: 100%;
   height: 100%;
   display: grid;
-  grid-template-columns: repeat(17, 1fr);
-  grid-template-rows: repeat(17, 1fr);
+  /* Cells are 3fr, lanes are 1fr to keep lanes <= 1/3 of a cell */
+  grid-template-columns: repeat(8, 3fr 1fr) 3fr;
+  grid-template-rows: repeat(8, 3fr 1fr) 3fr;
   gap: 0;
 }
 
