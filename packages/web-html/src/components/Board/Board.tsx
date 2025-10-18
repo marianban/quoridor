@@ -51,11 +51,12 @@ type LaneProps = {
   style: React.CSSProperties;
   wall?: 'H' | 'V';
   preview?: PreviewOverlay;
+  onClick?: () => void;
   onPointerEnter?: () => void;
   onPointerLeave?: () => void;
 };
 function Lane(props: LaneProps) {
-  const { r, c, style, wall, preview, onPointerEnter, onPointerLeave } = props;
+  const { r, c, style, wall, preview, onPointerEnter, onPointerLeave, onClick } = props;
   const isIntersection = r % 2 === 1 && c % 2 === 1;
   const isHLane = r % 2 === 1 && c % 2 === 0;
   const isVLane = r % 2 === 0 && c % 2 === 1;
@@ -72,6 +73,7 @@ function Lane(props: LaneProps) {
     classes.push(preview.orientation === 'H' ? 'lane--preview-h' : 'lane--preview-v');
     classes.push(preview.status === 'valid' ? 'lane--preview-valid' : 'lane--preview-invalid');
   }
+  if (onClick) classes.push('lane--clickable');
   return (
     <div
       className={classes.join(' ')}
@@ -80,6 +82,7 @@ function Lane(props: LaneProps) {
       data-gr={r}
       data-gc={c}
       {...(preview ? { 'data-preview': preview.status } : {})}
+      onClick={onClick}
       onPointerEnter={onPointerEnter}
       onPointerLeave={onPointerLeave}
     />
@@ -96,18 +99,19 @@ export function Board(props: {
   orientation: 'H' | 'V';
   onApplyMove: (m: Move) => void;
 }) {
+  const { state, mode, orientation, onApplyMove } = props;
   const [previewState, setPreviewState] = useState<PreviewAnchorState | null>(null);
 
   // Compute highlight set for legal pawn destinations when in Move mode
   const highlightSet = useMemo(() => {
-    if (props.mode !== 'move') return new Set<string>();
-    const lm = legalMoves(props.state);
+    if (mode !== 'move') return new Set<string>();
+    const lm = legalMoves(state);
     const set = new Set<string>();
     for (const m of lm) {
       if (m.type === 'PawnMove') set.add(coordToId(m.to));
     }
     return set;
-  }, [props.mode, props.state]);
+  }, [mode, state]);
 
   const items = useMemo<GridItem[]>(() => {
     const idx = Array.from({ length: 17 }, (_, i) => i);
@@ -130,7 +134,7 @@ export function Board(props: {
 
   const wallMap = useMemo(() => {
     const map = new Map<string, 'H' | 'V'>();
-    for (const w of props.state.placedWalls) {
+    for (const w of state.placedWalls) {
       const baseRow = w.r * 2;
       const baseCol = w.c * 2;
       if (w.o === 'H') {
@@ -146,27 +150,27 @@ export function Board(props: {
       }
     }
     return map;
-  }, [props.state.placedWalls]);
+  }, [state.placedWalls]);
 
   const activePreviewAnchor = useMemo(() => {
     if (!previewState) return null;
-    if (props.mode !== 'wall') return null;
-    if (previewState.mode !== props.mode) return null;
-    if (previewState.wallCount !== props.state.placedWalls.length) return null;
+    if (mode !== 'wall') return null;
+    if (previewState.mode !== mode) return null;
+    if (previewState.wallCount !== state.placedWalls.length) return null;
     return previewState.anchor;
-  }, [previewState, props.mode, props.state.placedWalls.length]);
+  }, [previewState, mode, state.placedWalls.length]);
 
   const previewMap = useMemo(() => {
     if (!activePreviewAnchor) return null;
-    const anchor = clampWallAnchor(activePreviewAnchor, props.state.boardSize);
-    const result = canApplyMove(props.state, {
+    const anchor = clampWallAnchor(activePreviewAnchor, state.boardSize);
+    const result = canApplyMove(state, {
       type: 'WallPlacement',
       anchor,
-      o: props.orientation,
+      o: orientation,
     });
     const status: PreviewOverlay['status'] = result.ok ? 'valid' : 'invalid';
     const segments = new Map<string, PreviewOverlay>();
-    if (props.orientation === 'H') {
+    if (orientation === 'H') {
       const row = anchor.r * 2 + 1;
       const colStart = anchor.c * 2;
       for (let delta = 0; delta <= 2; delta++) {
@@ -180,19 +184,30 @@ export function Board(props: {
       }
     }
     return segments;
-  }, [activePreviewAnchor, props.orientation, props.state]);
+  }, [activePreviewAnchor, orientation, state]);
+
+  const applyWall = useCallback(
+    (anchor: { r: number; c: number }) => {
+      onApplyMove({
+        type: 'WallPlacement',
+        anchor,
+        o: orientation,
+      });
+    },
+    [onApplyMove, orientation],
+  );
 
   const handlePreviewEnter = useCallback(
     (candidate: { r: number; c: number }) => {
-      if (props.mode !== 'wall') return;
-      const clamped = clampWallAnchor(candidate, props.state.boardSize);
+      if (mode !== 'wall') return;
+      const clamped = clampWallAnchor(candidate, state.boardSize);
       setPreviewState({
         anchor: clamped,
-        wallCount: props.state.placedWalls.length,
-        mode: props.mode,
+        wallCount: state.placedWalls.length,
+        mode,
       });
     },
-    [props.mode, props.state.boardSize, props.state.placedWalls.length],
+    [mode, state.boardSize, state.placedWalls.length],
   );
 
   const handleGridPreview = useCallback(
@@ -213,23 +228,15 @@ export function Board(props: {
           if (it.kind === 'cell') {
             const isHighlighted = highlightSet.has(coordToId(it.r, it.c));
             let pawn: 'P1' | 'P2' | undefined;
-            if (props.state.pawns.P1.r === it.r && props.state.pawns.P1.c === it.c) pawn = 'P1';
-            else if (props.state.pawns.P2.r === it.r && props.state.pawns.P2.c === it.c)
-              pawn = 'P2';
+            if (state.pawns.P1.r === it.r && state.pawns.P1.c === it.c) pawn = 'P1';
+            else if (state.pawns.P2.r === it.r && state.pawns.P2.c === it.c) pawn = 'P2';
 
             let onClick: (() => void) | undefined;
-            if (props.mode === 'move' && isHighlighted) {
-              onClick = () => props.onApplyMove({ type: 'PawnMove', to: { r: it.r, c: it.c } });
-            } else if (props.mode === 'wall') {
-              const anchor = clampWallAnchor({ r: it.r, c: it.c }, props.state.boardSize);
-
-              onClick = () => {
-                props.onApplyMove({
-                  type: 'WallPlacement',
-                  anchor,
-                  o: props.orientation,
-                });
-              };
+            if (mode === 'move' && isHighlighted) {
+              onClick = () => onApplyMove({ type: 'PawnMove', to: { r: it.r, c: it.c } });
+            } else if (mode === 'wall') {
+              const anchor = clampWallAnchor({ r: it.r, c: it.c }, state.boardSize);
+              onClick = () => applyWall(anchor);
             }
 
             return (
@@ -242,21 +249,26 @@ export function Board(props: {
                 pawn={pawn}
                 onClick={onClick}
                 onPointerEnter={
-                  props.mode === 'wall' ? () => handlePreviewEnter({ r: it.r, c: it.c }) : undefined
+                  mode === 'wall' ? () => handlePreviewEnter({ r: it.r, c: it.c }) : undefined
                 }
               />
             );
           }
+          const key = `${it.r},${it.c}`;
+          const preview = previewMap?.get(key);
           return (
             <Lane
               key={it.key}
               r={it.r}
               c={it.c}
               style={it.style}
-              wall={wallMap.get(`${it.r},${it.c}`)}
-              preview={previewMap?.get(`${it.r},${it.c}`) ?? undefined}
-              onPointerEnter={
-                props.mode === 'wall' ? () => handleGridPreview(it.r, it.c) : undefined
+              wall={wallMap.get(key)}
+              preview={preview ?? undefined}
+              onPointerEnter={mode === 'wall' ? () => handleGridPreview(it.r, it.c) : undefined}
+              onClick={
+                mode === 'wall' && preview && activePreviewAnchor
+                  ? () => applyWall(activePreviewAnchor)
+                  : undefined
               }
             />
           );

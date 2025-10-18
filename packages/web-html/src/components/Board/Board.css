@@ -86,3 +86,6 @@
 .lane--preview-invalid::after {
   background: rgba(211, 47, 47, 0.4);
 }
+.lane--clickable {
+  cursor: pointer;
+}
