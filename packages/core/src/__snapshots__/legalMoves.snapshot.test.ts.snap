@@ -248,6 +248,14 @@ exports[`legalMoves snapshots (mid-game) > Scenario A: light center walls and ea
   },
   {
     "anchor": {
+      "c": 4,
+      "r": 3,
+    },
+    "o": "H",
+    "type": "WallPlacement",
+  },
+  {
+    "anchor": {
       "c": 5,
       "r": 3,
     },
@@ -273,6 +281,14 @@ exports[`legalMoves snapshots (mid-game) > Scenario A: light center walls and ea
   {
     "anchor": {
       "c": 0,
+      "r": 4,
+    },
+    "o": "H",
+    "type": "WallPlacement",
+  },
+  {
+    "anchor": {
+      "c": 1,
       "r": 4,
     },
     "o": "H",
@@ -312,6 +328,14 @@ exports[`legalMoves snapshots (mid-game) > Scenario A: light center walls and ea
   },
   {
     "anchor": {
+      "c": 4,
+      "r": 5,
+    },
+    "o": "H",
+    "type": "WallPlacement",
+  },
+  {
+    "anchor": {
       "c": 5,
       "r": 5,
     },
@@ -337,6 +361,14 @@ exports[`legalMoves snapshots (mid-game) > Scenario A: light center walls and ea
   {
     "anchor": {
       "c": 0,
+      "r": 6,
+    },
+    "o": "H",
+    "type": "WallPlacement",
+  },
+  {
+    "anchor": {
+      "c": 1,
       "r": 6,
     },
     "o": "H",
@@ -577,6 +609,22 @@ exports[`legalMoves snapshots (mid-game) > Scenario A: light center walls and ea
   {
     "anchor": {
       "c": 0,
+      "r": 2,
+    },
+    "o": "V",
+    "type": "WallPlacement",
+  },
+  {
+    "anchor": {
+      "c": 1,
+      "r": 2,
+    },
+    "o": "V",
+    "type": "WallPlacement",
+  },
+  {
+    "anchor": {
+      "c": 3,
       "r": 2,
     },
     "o": "V",
@@ -1185,6 +1233,14 @@ exports[`legalMoves snapshots (mid-game) > Scenario B: denser mid-board walls, b
   },
   {
     "anchor": {
+      "c": 3,
+      "r": 4,
+    },
+    "o": "H",
+    "type": "WallPlacement",
+  },
+  {
+    "anchor": {
       "c": 4,
       "r": 4,
     },
@@ -1274,6 +1330,14 @@ exports[`legalMoves snapshots (mid-game) > Scenario B: denser mid-board walls, b
   {
     "anchor": {
       "c": 2,
+      "r": 6,
+    },
+    "o": "H",
+    "type": "WallPlacement",
+  },
+  {
+    "anchor": {
+      "c": 3,
       "r": 6,
     },
     "o": "H",
@@ -1513,6 +1577,22 @@ exports[`legalMoves snapshots (mid-game) > Scenario B: denser mid-board walls, b
   },
   {
     "anchor": {
+      "c": 2,
+      "r": 2,
+    },
+    "o": "V",
+    "type": "WallPlacement",
+  },
+  {
+    "anchor": {
+      "c": 4,
+      "r": 2,
+    },
+    "o": "V",
+    "type": "WallPlacement",
+  },
+  {
+    "anchor": {
       "c": 6,
       "r": 2,
     },
@@ -1546,6 +1626,22 @@ exports[`legalMoves snapshots (mid-game) > Scenario B: denser mid-board walls, b
   {
     "anchor": {
       "c": 2,
+      "r": 3,
+    },
+    "o": "V",
+    "type": "WallPlacement",
+  },
+  {
+    "anchor": {
+      "c": 4,
+      "r": 3,
+    },
+    "o": "V",
+    "type": "WallPlacement",
+  },
+  {
+    "anchor": {
+      "c": 6,
       "r": 3,
     },
     "o": "V",
@@ -2026,6 +2122,14 @@ exports[`legalMoves snapshots (mid-game) > Scenario C: near-terminal pawns with 
   },
   {
     "anchor": {
+      "c": 1,
+      "r": 3,
+    },
+    "o": "H",
+    "type": "WallPlacement",
+  },
+  {
+    "anchor": {
       "c": 2,
       "r": 3,
     },
@@ -2115,6 +2219,14 @@ exports[`legalMoves snapshots (mid-game) > Scenario C: near-terminal pawns with 
   {
     "anchor": {
       "c": 0,
+      "r": 5,
+    },
+    "o": "H",
+    "type": "WallPlacement",
+  },
+  {
+    "anchor": {
+      "c": 1,
       "r": 5,
     },
     "o": "H",
@@ -2387,6 +2499,22 @@ exports[`legalMoves snapshots (mid-game) > Scenario C: near-terminal pawns with 
   {
     "anchor": {
       "c": 4,
+      "r": 1,
+    },
+    "o": "V",
+    "type": "WallPlacement",
+  },
+  {
+    "anchor": {
+      "c": 5,
+      "r": 1,
+    },
+    "o": "V",
+    "type": "WallPlacement",
+  },
+  {
+    "anchor": {
+      "c": 7,
       "r": 1,
     },
     "o": "V",

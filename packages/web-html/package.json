@@ -4,8 +4,11 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "predev": "npm run -w @quoridor/core build",
     "dev": "vite",
+    "prebuild": "npm run -w @quoridor/core build",
     "build": "vite build",
+    "prepreview": "npm run -w @quoridor/core build",
     "preview": "vite preview",
     "pretest": "npm run -w @quoridor/core build",
     "test": "vitest run"

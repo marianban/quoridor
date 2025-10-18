@@ -10,11 +10,11 @@ export function edgeKey(a: Coord, b: Coord): string {
 export function edgesForWall(w: Wall): [string, string] {
   const { r, c, o } = w;
   if (o === 'H') {
-    // blocks (r,c)-(r,c+1) and (r+1,c)-(r+1,c+1)
-    return [edgeKey({ r, c }, { r, c: c + 1 }), edgeKey({ r: r + 1, c }, { r: r + 1, c: c + 1 })];
+    // horizontal wall blocks vertical movement across two adjacent files
+    return [edgeKey({ r, c }, { r: r + 1, c }), edgeKey({ r, c: c + 1 }, { r: r + 1, c: c + 1 })];
   }
-  // 'V' blocks (r,c)-(r+1,c) and (r,c+1)-(r+1,c+1)
-  return [edgeKey({ r, c }, { r: r + 1, c }), edgeKey({ r, c: c + 1 }, { r: r + 1, c: c + 1 })];
+  // vertical wall blocks horizontal movement across two adjacent ranks
+  return [edgeKey({ r, c }, { r, c: c + 1 }), edgeKey({ r: r + 1, c }, { r: r + 1, c: c + 1 })];
 }
 
 export function isBlocked(blocked: ReadonlyArray<string>, a: Coord, b: Coord): boolean {
