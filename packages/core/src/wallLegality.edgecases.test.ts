@@ -86,7 +86,7 @@ describe('wall legality edge cases', () => {
       barrier.push(`4,${c}|5,${c}`);
     }
     s = { ...s, blockedEdges: barrier };
-    // Attempt to place a horizontal wall at (4,4) which blocks (4,4)-(5,4) and (4,5)-(5,5), closing the gap
+    // Attempt to place a horizontal wall at (4,4) which blocks vertical movement between (4,4)-(5,4) and (4,5)-(5,5), closing the gap
     const attempt = canApplyMove(s, { type: 'WallPlacement', anchor: { r: 4, c: 4 }, o: 'H' });
     expect(attempt.ok).toBe(false);
     if (!attempt.ok) expect(attempt.code).toBe('no_path_after_placement');
