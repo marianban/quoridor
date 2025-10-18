@@ -130,12 +130,15 @@ export function Board(props: {
               onClick = () => props.onApplyMove({ type: 'PawnMove', to: { r: it.r, c: it.c } });
             } else if (props.mode === 'wall') {
               const anchor = clampWallAnchor({ r: it.r, c: it.c }, props.state.boardSize);
-              onClick = () =>
+
+              onClick = () => {
+                console.log(anchor);
                 props.onApplyMove({
                   type: 'WallPlacement',
                   anchor,
                   o: props.orientation,
                 });
+              };
             }
 
             return (

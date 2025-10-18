@@ -159,6 +159,17 @@ export function canPlaceWall(state: GameState, w: Wall): Result<void> {
   if (segs.some((e) => state.blockedEdges.includes(e))) {
     return { ok: false, code: 'wall_overlap', reason: 'Wall overlaps an existing wall' };
   }
+  // partial overlap: same orientation sharing a cell span
+  for (const pw of state.placedWalls) {
+    if (pw.o !== w.o) continue;
+    if (w.o === 'H') {
+      if (pw.r === w.r && Math.abs(pw.c - w.c) <= 1) {
+        return { ok: false, code: 'wall_overlap', reason: 'Wall overlaps an existing wall' };
+      }
+    } else if (pw.c === w.c && Math.abs(pw.r - w.r) <= 1) {
+      return { ok: false, code: 'wall_overlap', reason: 'Wall overlaps an existing wall' };
+    }
+  }
   // cross: perpendicular wall at same anchor
   const perp: Orientation = w.o === 'H' ? 'V' : 'H';
   if (state.placedWalls.some((pw) => pw.r === w.r && pw.c === w.c && pw.o === perp)) {
