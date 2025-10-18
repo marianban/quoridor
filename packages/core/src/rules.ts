@@ -13,7 +13,7 @@ export function edgesForWall(w: Wall): [string, string] {
     // horizontal wall blocks vertical movement across two adjacent files
     return [edgeKey({ r, c }, { r: r + 1, c }), edgeKey({ r, c: c + 1 }, { r: r + 1, c: c + 1 })];
   }
-  // vertical wall blocks horizontal movement across two adjacent ranks
+  // vertical wall blocks horizontal movement across two adjacent files
   return [edgeKey({ r, c }, { r, c: c + 1 }), edgeKey({ r: r + 1, c }, { r: r + 1, c: c + 1 })];
 }
 
