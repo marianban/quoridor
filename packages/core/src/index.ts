@@ -1,4 +1,5 @@
 import type {
+  Coord,
   CreateOptions,
   GameState,
   Move,
@@ -8,7 +9,14 @@ import type {
   WallPlacement,
   PawnMove,
 } from './types';
-import { canPlaceWall, generatePawnMoves, edgesForWall } from './rules.js';
+import {
+  canPlaceWall,
+  generatePawnMoves,
+  edgesForWall,
+  inBoundsCell,
+  isBlocked,
+  isOccupied,
+} from './rules.js';
 
 export { type Coord, type GameState, type Move, type Player, type Result } from './types';
 export { Game } from './game.js';
@@ -57,19 +65,16 @@ export function legalMoves(state: GameState): Move[] {
   return [...pawnMoves, ...walls];
 }
 
-export function canApplyMove(state: GameState, move: Move): Result<void> {
+export function canApplyMove(state: GameState, move: Move, player?: Player): Result<void> {
   if (isTerminal(state)) return { ok: false, code: 'already_terminal', reason: 'Game ended' };
-  // turn check implicit: moves don’t carry player; we validate against state.turn
+  const who = player ?? state.turn;
+  if (who !== state.turn)
+    return { ok: false, code: 'not_your_turn', reason: 'Move attempted by non-active player' };
   if (move.type === 'PawnMove') {
-    const allowed = generatePawnMoves(state, state.turn).some(
-      (p) => p.r === move.to.r && p.c === move.to.c,
-    );
-    return allowed
-      ? { ok: true, value: undefined }
-      : { ok: false, code: 'illegal_pawn_move', reason: 'Destination not legal' };
+    return validatePawnMove(state, who, move);
   }
   // WallPlacement
-  const remaining = state.wallsRemaining[state.turn];
+  const remaining = state.wallsRemaining[who];
   if (remaining <= 0) return { ok: false, code: 'no_walls_left', reason: 'No walls remaining' };
   return canPlaceWall(state, { r: move.anchor.r, c: move.anchor.c, o: move.o });
 }
@@ -137,6 +142,96 @@ export function deserialize(json: string): Result<GameState> {
     // swallow and return invalid
   }
   return { ok: false, code: 'deserialize_invalid', reason: 'Invalid or incompatible state JSON' };
+}
+
+function validatePawnMove(state: GameState, who: Player, move: PawnMove): Result<void> {
+  const from = state.pawns[who];
+  const to = move.to;
+  if (!inBoundsCell(to))
+    return { ok: false, code: 'bounds_cell', reason: 'Destination cell out of bounds' };
+  if (from.r === to.r && from.c === to.c)
+    return { ok: false, code: 'illegal_pawn_move', reason: 'Pawn must move to a new cell' };
+  if (isOccupied(state, to))
+    return { ok: false, code: 'illegal_pawn_move', reason: 'Destination already occupied' };
+
+  const other: Player = who === 'P1' ? 'P2' : 'P1';
+  const opp = state.pawns[other];
+  const dr = to.r - from.r;
+  const dc = to.c - from.c;
+  const adr = Math.abs(dr);
+  const adc = Math.abs(dc);
+  const step = (delta: number): number => (delta > 0 ? 1 : delta < 0 ? -1 : 0);
+  const blockedBetween = (a: Coord, b: Coord) => isBlocked(state.blockedEdges, a, b);
+
+  if ((adr === 1 && adc === 0) || (adr === 0 && adc === 1)) {
+    const next: Coord = { r: from.r + step(dr), c: from.c + step(dc) };
+    if (blockedBetween(from, next))
+      return { ok: false, code: 'illegal_pawn_move', reason: 'Path blocked by wall' };
+    return { ok: true, value: undefined };
+  }
+
+  if ((adr === 2 && adc === 0) || (adr === 0 && adc === 2)) {
+    const dir: Coord = { r: step(dr), c: step(dc) };
+    const mid: Coord = { r: from.r + dir.r, c: from.c + dir.c };
+    if (mid.r !== opp.r || mid.c !== opp.c)
+      return { ok: false, code: 'illegal_jump', reason: 'No opponent to jump over' };
+    if (blockedBetween(from, mid) || blockedBetween(mid, to))
+      return { ok: false, code: 'illegal_jump', reason: 'Jump path blocked' };
+    return { ok: true, value: undefined };
+  }
+
+  if (adr === 1 && adc === 1) {
+    const verticalDir = step(dr);
+    const horizontalDir = step(dc);
+    const verticalAdj: Coord = { r: from.r + verticalDir, c: from.c };
+    const horizontalAdj: Coord = { r: from.r, c: from.c + horizontalDir };
+    let direction: Coord | null = null;
+    if (verticalAdj.r === opp.r && verticalAdj.c === opp.c) {
+      direction = { r: verticalDir, c: 0 };
+    } else if (horizontalAdj.r === opp.r && horizontalAdj.c === opp.c) {
+      direction = { r: 0, c: horizontalDir };
+    }
+    if (!direction)
+      return {
+        ok: false,
+        code: 'illegal_pawn_move',
+        reason: 'Diagonal move requires adjacent opponent',
+      };
+    const adj: Coord = { r: from.r + direction.r, c: from.c + direction.c };
+    const beyond: Coord = { r: adj.r + direction.r, c: adj.c + direction.c };
+    const straightAvailable =
+      inBoundsCell(beyond) && !blockedBetween(adj, beyond) && !isOccupied(state, beyond);
+    if (straightAvailable)
+      return {
+        ok: false,
+        code: 'diagonal_not_allowed',
+        reason: 'Straight jump is available instead of diagonal',
+      };
+    const sideOptions: Coord[] =
+      direction.r !== 0 ? [{ r: 0, c: 1 }, { r: 0, c: -1 }] : [{ r: 1, c: 0 }, { r: -1, c: 0 }];
+    for (const side of sideOptions) {
+      const sideCell: Coord = { r: from.r + side.r, c: from.c + side.c };
+      const diag: Coord = { r: adj.r + side.r, c: adj.c + side.c };
+      if (diag.r === to.r && diag.c === to.c) {
+        if (!inBoundsCell(sideCell) || !inBoundsCell(diag))
+          return {
+            ok: false,
+            code: 'illegal_pawn_move',
+            reason: 'Diagonal path leaves the board',
+          };
+        if (blockedBetween(from, sideCell) || blockedBetween(adj, diag))
+          return { ok: false, code: 'illegal_pawn_move', reason: 'Diagonal path blocked by wall' };
+        return { ok: true, value: undefined };
+      }
+    }
+    return {
+      ok: false,
+      code: 'illegal_pawn_move',
+      reason: 'Diagonal destination not reachable around opponent',
+    };
+  }
+
+  return { ok: false, code: 'illegal_pawn_move', reason: 'Move not allowed by pawn rules' };
 }
 
 function isGameState(x: unknown): x is GameState {
