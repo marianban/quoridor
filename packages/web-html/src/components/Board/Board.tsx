@@ -33,20 +33,23 @@ function Cell(props: CellProps) {
   );
 }
 
-type LaneProps = { r: number; c: number; style: React.CSSProperties };
+type LaneProps = { r: number; c: number; style: React.CSSProperties; wall?: 'H' | 'V' };
 function Lane(props: LaneProps) {
-  const { r, c, style } = props;
+  const { r, c, style, wall } = props;
   const isIntersection = r % 2 === 1 && c % 2 === 1;
   const isHLane = r % 2 === 1 && c % 2 === 0;
   const isVLane = r % 2 === 0 && c % 2 === 1;
-  const cls = isIntersection
-    ? 'lane lane--x'
-    : isHLane
-      ? 'lane lane--h'
-      : isVLane
-        ? 'lane lane--v'
-        : 'lane';
-  return <div className={cls} aria-hidden="true" style={style} />;
+  const classes = ['lane'];
+  if (isIntersection) classes.push('lane--x');
+  else if (isHLane) classes.push('lane--h');
+  else if (isVLane) classes.push('lane--v');
+  if (wall) {
+    classes.push('lane--wall');
+    classes.push(wall === 'H' ? 'lane--wall-h' : 'lane--wall-v');
+  }
+  return (
+    <div className={classes.join(' ')} aria-hidden="true" style={style} data-gr={r} data-gc={c} />
+  );
 }
 
 type GridItem =
@@ -91,6 +94,26 @@ export function Board(props: {
     return out;
   }, []);
 
+  const wallMap = useMemo(() => {
+    const map = new Map<string, 'H' | 'V'>();
+    for (const w of props.state.placedWalls) {
+      const baseRow = w.r * 2;
+      const baseCol = w.c * 2;
+      if (w.o === 'H') {
+        const row = baseRow + 1;
+        map.set(`${row},${baseCol}`, 'H');
+        map.set(`${row},${baseCol + 1}`, 'H');
+        map.set(`${row},${baseCol + 2}`, 'H');
+      } else {
+        const col = baseCol + 1;
+        map.set(`${baseRow},${col}`, 'V');
+        map.set(`${baseRow + 1},${col}`, 'V');
+        map.set(`${baseRow + 2},${col}`, 'V');
+      }
+    }
+    return map;
+  }, [props.state.placedWalls]);
+
   return (
     <div className="board" role="grid" aria-label="Quoridor board">
       <div className="board__grid">
@@ -127,7 +150,15 @@ export function Board(props: {
               />
             );
           }
-          return <Lane key={it.key} r={it.r} c={it.c} style={it.style} />;
+          return (
+            <Lane
+              key={it.key}
+              r={it.r}
+              c={it.c}
+              style={it.style}
+              wall={wallMap.get(`${it.r},${it.c}`)}
+            />
+          );
         })}
       </div>
     </div>

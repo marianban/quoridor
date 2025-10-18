@@ -57,3 +57,12 @@
 .lane--x {
   background: #f0f0f0;
 }
+.lane--wall {
+  background: #8d6e63;
+}
+.lane--wall-h {
+  border-radius: 4px;
+}
+.lane--wall-v {
+  border-radius: 4px;
+}
