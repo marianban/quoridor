@@ -85,7 +85,9 @@
   - H wall at (r,c) blocks edges between (r,c)-(r,c+1) and (r+1,c)-(r+1,c+1)
   - V wall at (r,c) blocks edges between (r,c)-(r+1,c) and (r,c+1)-(r+1,c+1)
 - Walls live on r in [0..7], c in [0..7].
-- Represent blocked edges as a Set of normalized edge keys for O(1) checks.
+- Represent blocked edges as a string array of normalized edge keys (e.g., "r1,c1|r2,c2" in lexicographic order) per ADR-0004/0013.
+  - Provide helper utilities in core for generating, normalizing, and membership checking so adapters/tests do not reimplement the format.
+  - Rationale: keeps `GameState` JSON-friendly, stable for snapshotting, and consistent with specs; 9x9 boards keep linear scans performant.
 
 ## Testing Strategy
 
