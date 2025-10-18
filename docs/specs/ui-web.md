@@ -40,6 +40,7 @@ Scope: Functional behavior and UX for the packages/web-html React adapter; core 
   - Wall preview in Wall mode:
     - Hover/focus preview at the anchor with current orientation (semi-transparent).
     - Illegal preview shown in a warning color (e.g., rgba(176, 0, 32, 0.4)).
+  - Render all placed walls from `state.placedWalls` so the board always reflects the current game state.
 - Legal-move highlights (Move mode)
   - Subtle highlight (e.g., #efefef) for legal destination cells (always-on while in Move mode).
 
