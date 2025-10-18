@@ -207,6 +207,7 @@ function validatePawnMove(state: GameState, who: Player, move: PawnMove): Result
         code: 'diagonal_not_allowed',
         reason: 'Straight jump is available instead of diagonal',
       };
+    // The two perpendicular directions for diagonal moves: if jumping vertically, try left/right; if horizontally, try up/down.
     const sideOptions: Coord[] =
       direction.r !== 0 ? [{ r: 0, c: 1 }, { r: 0, c: -1 }] : [{ r: 1, c: 0 }, { r: -1, c: 0 }];
     for (const side of sideOptions) {
