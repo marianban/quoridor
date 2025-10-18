@@ -62,6 +62,19 @@ export function inBoundsWallAnchor(w: Wall): boolean {
   return w.r >= 0 && w.r <= 7 && w.c >= 0 && w.c <= 7;
 }
 
+const clamp = (value: number, min: number, max: number): number => {
+  if (value < min) return min;
+  if (value > max) return max;
+  return value;
+};
+
+export function clampWallAnchor(candidate: Coord, boardSize: number): Coord {
+  const maxAnchor = Math.max(0, boardSize - 2);
+  const r = clamp(candidate.r, 0, maxAnchor);
+  const c = clamp(candidate.c, 0, maxAnchor);
+  return { r, c };
+}
+
 export function isOccupied(state: GameState, p: Coord): boolean {
   return (
     (state.pawns.P1.r === p.r && state.pawns.P1.c === p.c) ||

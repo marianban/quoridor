@@ -20,6 +20,7 @@ import {
 
 export { type Coord, type GameState, type Move, type Player, type Result } from './types';
 export { Game } from './game.js';
+export { clampWallAnchor } from './rules.js';
 
 export function createInitialState(options?: CreateOptions): GameState {
   return {
@@ -209,7 +210,15 @@ function validatePawnMove(state: GameState, who: Player, move: PawnMove): Result
       };
     // The two perpendicular directions for diagonal moves: if jumping vertically, try left/right; if horizontally, try up/down.
     const sideOptions: Coord[] =
-      direction.r !== 0 ? [{ r: 0, c: 1 }, { r: 0, c: -1 }] : [{ r: 1, c: 0 }, { r: -1, c: 0 }];
+      direction.r !== 0
+        ? [
+            { r: 0, c: 1 },
+            { r: 0, c: -1 },
+          ]
+        : [
+            { r: 1, c: 0 },
+            { r: -1, c: 0 },
+          ];
     for (const side of sideOptions) {
       const sideCell: Coord = { r: from.r + side.r, c: from.c + side.c };
       const diag: Coord = { r: adj.r + side.r, c: adj.c + side.c };

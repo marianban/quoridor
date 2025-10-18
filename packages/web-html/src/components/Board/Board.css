@@ -26,6 +26,9 @@
   background: #efefef;
   cursor: pointer;
 }
+.cell--clickable {
+  cursor: pointer;
+}
 
 /* Pawn visuals */
 .pawn {

@@ -1,5 +1,5 @@
 import type { GameState, Move } from '@quoridor/core';
-import { legalMoves } from '@quoridor/core';
+import { clampWallAnchor, legalMoves } from '@quoridor/core';
 import { coordToId } from '../../utils/coords';
 import { useMemo } from 'react';
 import './Board.css';
@@ -14,9 +14,18 @@ type CellProps = {
 };
 function Cell(props: CellProps) {
   const { r, c, style, highlighted, onClick, pawn } = props;
-  const cls = highlighted ? 'cell cell--highlight' : 'cell';
+  const classes = ['cell'];
+  if (highlighted) classes.push('cell--highlight');
+  if (onClick) classes.push('cell--clickable');
   return (
-    <div className={cls} role="gridcell" data-r={r} data-c={c} style={style} onClick={onClick}>
+    <div
+      className={classes.join(' ')}
+      role="gridcell"
+      data-r={r}
+      data-c={c}
+      style={style}
+      onClick={onClick}
+    >
       {pawn ? (
         <div className={`pawn ${pawn === 'P1' ? 'pawn--p1' : 'pawn--p2'}`} data-pawn={pawn} />
       ) : null}
@@ -93,6 +102,19 @@ export function Board(props: {
             else if (props.state.pawns.P2.r === it.r && props.state.pawns.P2.c === it.c)
               pawn = 'P2';
 
+            let onClick: (() => void) | undefined;
+            if (props.mode === 'move' && isHighlighted) {
+              onClick = () => props.onApplyMove({ type: 'PawnMove', to: { r: it.r, c: it.c } });
+            } else if (props.mode === 'wall') {
+              const anchor = clampWallAnchor({ r: it.r, c: it.c }, props.state.boardSize);
+              onClick = () =>
+                props.onApplyMove({
+                  type: 'WallPlacement',
+                  anchor,
+                  o: props.orientation,
+                });
+            }
+
             return (
               <Cell
                 key={it.key}
@@ -101,11 +123,7 @@ export function Board(props: {
                 style={it.style}
                 highlighted={isHighlighted}
                 pawn={pawn}
-                onClick={
-                  isHighlighted
-                    ? () => props.onApplyMove({ type: 'PawnMove', to: { r: it.r, c: it.c } })
-                    : undefined
-                }
+                onClick={onClick}
               />
             );
           }

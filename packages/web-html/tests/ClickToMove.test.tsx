@@ -22,6 +22,11 @@ describe('Click-to-move applies PawnMove', () => {
     // Highlights should now reflect P2's legal moves around (8,4)
     const highlighted = document.querySelectorAll('.cell.cell--highlight');
     expect(highlighted.length).toBe(3);
+
+    const p1Pawn = document.querySelector('.pawn[data-pawn="P1"]') as HTMLElement;
+    const pawnParent = p1Pawn.closest('[data-r][data-c]') as HTMLElement;
+    expect(pawnParent.getAttribute('data-r')).toBe('1');
+    expect(pawnParent.getAttribute('data-c')).toBe('4');
   });
 
   it('clicking a non-highlighted cell does nothing', async () => {

@@ -7,6 +7,7 @@ import {
   hasPathToGoal,
   generatePawnMoves,
   canPlaceWall,
+  clampWallAnchor,
 } from './rules.js';
 
 describe('rules utilities', () => {
@@ -32,6 +33,12 @@ describe('rules utilities', () => {
     const s = createInitialState();
     expect(hasPathToGoal(s, 'P1')).toBe(true);
     expect(hasPathToGoal(s, 'P2')).toBe(true);
+  });
+
+  it('clampWallAnchor normalizes coordinates to 0..boardSize-2', () => {
+    expect(clampWallAnchor({ r: 0, c: 0 }, 9)).toEqual({ r: 0, c: 0 });
+    expect(clampWallAnchor({ r: 8, c: 8 }, 9)).toEqual({ r: 7, c: 7 });
+    expect(clampWallAnchor({ r: -1, c: 12 }, 9)).toEqual({ r: 0, c: 7 });
   });
 
   it('generatePawnMoves initial state P1 has 3', () => {

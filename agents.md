@@ -101,3 +101,10 @@ This document tracks key decisions and conventions so contributors (including AI
 - Context: Reduce runtime type risks and keep types trustworthy. Avoid using `as` to force types, which can hide bugs and weaken type safety.
 - Decision: Do not use TypeScript `as` assertions in core code. Prefer precise types, discriminated unions, type guards, and narrowing. For literals, avoid `as const` where it would constrain types incorrectly across public APIs. When parsing untyped data (e.g., JSON), use explicit type guards instead of casting.
 - Consequences: Clearer, safer code; slightly more verbose guards and helper functions (e.g., `isGameState`). Lint and reviews should flag `as` usages in core. Adapters may use assertions sparingly at boundaries, but core remains assertion-free.
+
+## ADR-0015: Core Logic Lives in Core Package
+
+- Status: Decided
+- Context: Multiple front ends (CLI, web, others) rely on the same Quoridor business rules. Duplication of legality checks or move normalization creates drift and inconsistent behavior.
+- Decision: All game-related business logic (validation, normalization, derived calculations) must reside in `@quoridor/core`. Adapters may call helpers but must not reimplement rule logic.
+- Consequences: Ensures a single source of truth, reduces UI-specific bug risk, and lets new adapters reuse proven logic. Requires adding shared helpers (e.g., clamp utilities) to core when gaps are found.
