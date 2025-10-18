@@ -19,8 +19,8 @@ describe('rules utilities', () => {
   });
 
   it('edgesForWall maps anchors to segments', () => {
-    expect(edgesForWall({ r: 0, c: 0, o: 'H' })).toEqual(['0,0|0,1', '1,0|1,1']);
-    expect(edgesForWall({ r: 3, c: 4, o: 'V' })).toEqual(['3,4|4,4', '3,5|4,5']);
+    expect(edgesForWall({ r: 0, c: 0, o: 'H' })).toEqual(['0,0|1,0', '0,1|1,1']);
+    expect(edgesForWall({ r: 3, c: 4, o: 'V' })).toEqual(['3,4|3,5', '4,4|4,5']);
   });
 
   it('neighbors excludes blocked directions', () => {
@@ -63,6 +63,28 @@ describe('rules utilities', () => {
     }
   });
 
+  it('generatePawnMoves respects horizontal walls blocking vertical steps', () => {
+    const base = createInitialState();
+    const state = {
+      ...base,
+      pawns: { P1: { r: 4, c: 4 }, P2: base.pawns.P2 },
+      blockedEdges: [...base.blockedEdges, ...edgesForWall({ r: 4, c: 4, o: 'H' })],
+    };
+    const moves = generatePawnMoves(state, 'P1');
+    expect(moves.some((p) => p.r === 5 && p.c === 4)).toBe(false);
+  });
+
+  it('generatePawnMoves respects vertical walls blocking horizontal steps', () => {
+    const base = createInitialState();
+    const state = {
+      ...base,
+      pawns: { P1: { r: 4, c: 4 }, P2: base.pawns.P2 },
+      blockedEdges: [...base.blockedEdges, ...edgesForWall({ r: 4, c: 4, o: 'V' })],
+    };
+    const moves = generatePawnMoves(state, 'P1');
+    expect(moves.some((p) => p.r === 4 && p.c === 5)).toBe(false);
+  });
+
   describe('pawn jumps and diagonals', () => {
     it('straight jump forward allows only the jump in that direction (no diagonals), other orth moves remain', () => {
       const s = createInitialState();
@@ -89,8 +111,8 @@ describe('rules utilities', () => {
         ...base,
         pawns: { P1: { r: 3, c: 4 }, P2: { r: 4, c: 4 } },
       } as const;
-      // Block the edge from opponent (4,4) to beyond (5,4) with vertical wall at (4,4)
-      const segs = edgesForWall({ r: 4, c: 4, o: 'V' });
+      // Block the edge from opponent (4,4) to beyond (5,4) with horizontal wall at (4,4)
+      const segs = edgesForWall({ r: 4, c: 4, o: 'H' });
       const s2 = { ...s1, blockedEdges: [...s1.blockedEdges, ...segs] } as const;
       const m = generatePawnMoves(s2, 'P1');
       const has = (r: number, c: number) => m.some((p) => p.r === r && p.c === c);

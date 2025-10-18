@@ -37,16 +37,23 @@ describe('wall legality edge cases', () => {
     if (!cross.ok) expect(cross.code).toBe('wall_cross');
   });
 
-  it('allows adjacent end-to-end horizontal walls', () => {
+  it('disallows partial overlap for same-orientation walls', () => {
     const s = createInitialState();
-    const r1 = applyMove(s, { type: 'WallPlacement', anchor: { r: 0, c: 0 }, o: 'H' });
+    const r1 = applyMove(s, { type: 'WallPlacement', anchor: { r: 4, c: 3 }, o: 'V' });
     expect(r1.ok).toBe(true);
     if (!r1.ok) return;
     const s1 = r1.value;
-    const can2 = canApplyMove(s1, { type: 'WallPlacement', anchor: { r: 0, c: 1 }, o: 'H' });
-    expect(can2.ok).toBe(true);
-    const r2 = applyMove(s1, { type: 'WallPlacement', anchor: { r: 0, c: 1 }, o: 'H' });
+    const vOverlap = canApplyMove(s1, { type: 'WallPlacement', anchor: { r: 5, c: 3 }, o: 'V' });
+    expect(vOverlap.ok).toBe(false);
+    if (!vOverlap.ok) expect(vOverlap.code).toBe('wall_overlap');
+
+    const r2 = applyMove(s, { type: 'WallPlacement', anchor: { r: 2, c: 2 }, o: 'H' });
     expect(r2.ok).toBe(true);
+    if (!r2.ok) return;
+    const s2 = r2.value;
+    const hOverlap = canApplyMove(s2, { type: 'WallPlacement', anchor: { r: 2, c: 3 }, o: 'H' });
+    expect(hOverlap.ok).toBe(false);
+    if (!hOverlap.ok) expect(hOverlap.code).toBe('wall_overlap');
   });
 
   it('allows perpendicular adjacency that touches at an end but does not cross', () => {
@@ -79,8 +86,8 @@ describe('wall legality edge cases', () => {
       barrier.push(`4,${c}|5,${c}`);
     }
     s = { ...s, blockedEdges: barrier };
-    // Attempt to place a vertical wall at (4,4) which blocks (4,4)-(5,4) and (4,5)-(5,5), closing the gap
-    const attempt = canApplyMove(s, { type: 'WallPlacement', anchor: { r: 4, c: 4 }, o: 'V' });
+    // Attempt to place a horizontal wall at (4,4) which blocks vertical movement between (4,4)-(5,4) and (4,5)-(5,5), closing the gap
+    const attempt = canApplyMove(s, { type: 'WallPlacement', anchor: { r: 4, c: 4 }, o: 'H' });
     expect(attempt.ok).toBe(false);
     if (!attempt.ok) expect(attempt.code).toBe('no_path_after_placement');
   });

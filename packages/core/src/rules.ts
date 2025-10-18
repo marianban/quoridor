@@ -10,11 +10,11 @@ export function edgeKey(a: Coord, b: Coord): string {
 export function edgesForWall(w: Wall): [string, string] {
   const { r, c, o } = w;
   if (o === 'H') {
-    // blocks (r,c)-(r,c+1) and (r+1,c)-(r+1,c+1)
-    return [edgeKey({ r, c }, { r, c: c + 1 }), edgeKey({ r: r + 1, c }, { r: r + 1, c: c + 1 })];
+    // horizontal wall blocks vertical movement across two adjacent files
+    return [edgeKey({ r, c }, { r: r + 1, c }), edgeKey({ r, c: c + 1 }, { r: r + 1, c: c + 1 })];
   }
-  // 'V' blocks (r,c)-(r+1,c) and (r,c+1)-(r+1,c+1)
-  return [edgeKey({ r, c }, { r: r + 1, c }), edgeKey({ r, c: c + 1 }, { r: r + 1, c: c + 1 })];
+  // vertical wall blocks horizontal movement across two adjacent files
+  return [edgeKey({ r, c }, { r, c: c + 1 }), edgeKey({ r: r + 1, c }, { r: r + 1, c: c + 1 })];
 }
 
 export function isBlocked(blocked: ReadonlyArray<string>, a: Coord, b: Coord): boolean {
@@ -158,6 +158,17 @@ export function canPlaceWall(state: GameState, w: Wall): Result<void> {
   const segs = edgesForWall(w);
   if (segs.some((e) => state.blockedEdges.includes(e))) {
     return { ok: false, code: 'wall_overlap', reason: 'Wall overlaps an existing wall' };
+  }
+  // partial overlap: same orientation sharing a cell span
+  for (const pw of state.placedWalls) {
+    if (pw.o !== w.o) continue;
+    if (w.o === 'H') {
+      if (pw.r === w.r && Math.abs(pw.c - w.c) <= 1) {
+        return { ok: false, code: 'wall_overlap', reason: 'Wall overlaps an existing wall' };
+      }
+    } else if (pw.c === w.c && Math.abs(pw.r - w.r) <= 1) {
+      return { ok: false, code: 'wall_overlap', reason: 'Wall overlaps an existing wall' };
+    }
   }
   // cross: perpendicular wall at same anchor
   const perp: Orientation = w.o === 'H' ? 'V' : 'H';
