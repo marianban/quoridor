@@ -9,6 +9,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
+    "pretest": "npm run -w @quoridor/core build",
     "prestart": "npm run -w @quoridor/core build",
     "start": "tsx src/index.ts",
     "test": "vitest run"

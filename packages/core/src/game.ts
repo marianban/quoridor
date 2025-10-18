@@ -35,8 +35,8 @@ export class Game {
     return coreLegalMoves(this._state);
   }
 
-  canApplyMove(move: Move): Result<void> {
-    return coreCanApplyMove(this._state, move);
+  canApplyMove(move: Move, player?: Player): Result<void> {
+    return coreCanApplyMove(this._state, move, player);
   }
 
   applyMove(move: Move): Result<Game> {
