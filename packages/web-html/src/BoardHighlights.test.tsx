@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { App } from '../src/App';
+import { App } from './App';
 
 // Step 5: Legal-move highlights
 // Initial state: P1 at (0,4) should have 3 legal destinations: (0,3), (0,5), (1,4)

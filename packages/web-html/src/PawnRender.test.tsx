@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render } from '@testing-library/react';
-import { App } from '../src/App';
+import { App } from './App';
 
 // Pawn visualization should render two pawns in initial positions
 

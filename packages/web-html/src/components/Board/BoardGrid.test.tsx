@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { Board } from '../src/components/Board/Board';
+import { Board } from './Board';
 import { Game } from '@quoridor/core';
 
 describe('Board grid structure', () => {

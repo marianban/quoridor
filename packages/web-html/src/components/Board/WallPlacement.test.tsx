@@ -1,9 +1,9 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Board } from '../src/components/Board/Board';
+import { Board } from './Board';
 import { applyMove, createInitialState } from '@quoridor/core';
-import { App } from '../src/App';
+import { App } from '../../App';
 
 // Step 7: Wall placements apply with clamping and error handling
 

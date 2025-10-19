@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { App } from '../src/App';
+import { App } from './App';
 
 describe('Keyboard shortcuts', () => {
   it('M and W toggle modes; H/V set orientation only in Wall mode', async () => {
