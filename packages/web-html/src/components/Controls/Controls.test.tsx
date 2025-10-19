@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { Controls } from '../src/components/Controls/Controls';
+import { Controls } from './Controls';
 
 describe('Controls', () => {
   it('shows tooltips for buttons', () => {

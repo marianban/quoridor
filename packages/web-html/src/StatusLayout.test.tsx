@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { App } from '../src/App';
+import { App } from './App';
 
 describe('Status below board', () => {
   it('renders status after the board in the left column and shows current turn', () => {
